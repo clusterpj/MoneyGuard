@@ -7,6 +7,7 @@ import 'package:moneyguard/features/auth/presentation/providers/auth_provider.da
 import 'package:moneyguard/features/auth/presentation/screens/login_screen.dart';
 import 'package:moneyguard/features/auth/presentation/screens/register_screen.dart';
 import 'package:moneyguard/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:moneyguard/features/budget/presentation/screens/budget_setup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: '/budget/setup',
+        builder: (context, state) => const BudgetSetupScreen(),
       ),
     ],
   );
