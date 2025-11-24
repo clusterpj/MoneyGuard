@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Configured dependencies (`fastapi`, `sqlalchemy`, `alembic`, `pydantic`).
     - Set up environment configuration with Pydantic Settings.
     - Created PostgreSQL database `moneyguard`.
+- **Core API Endpoints**:
+    - Implemented CRUD operations for `Expenses` and `Budgets`.
+    - Created Pydantic schemas for data validation.
+    - Added pagination support for expense listing.
 - **Authentication System**:
     - Implemented JWT-based authentication (`login`, `register`).
     - Added secure password hashing with `bcrypt`.

@@ -455,6 +455,14 @@ Week 4 (Polish)
 - [ ] OCR extracts amount from receipts (80%+ accuracy)
 - [ ] Confirmation screen allows editing OCR results
 
+#### Backend (FastAPI + PostgreSQL)
+- [x] Initialize FastAPI project structure
+- [x] Set up PostgreSQL database and Alembic migrations
+- [x] Implement User model and JWT Authentication
+- [x] Implement Expense and Budget models (CRUD endpoints)
+- [ ] Integrate DeepSeek API for intervention logic
+- [ ] Deploy to Railway (Staging)
+
 ### Week 3 ✅
 - [ ] When you spend >2000 DOP, intervention triggers
 - [ ] AI message displays in dialog

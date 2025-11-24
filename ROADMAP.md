@@ -14,7 +14,7 @@ This roadmap outlines the planned features and improvements for MoneyGuard. Time
 - [x] **Project Setup**: Initialize FastAPI, PostgreSQL, and Docker/Railway.
 - [x] **Database Schema**: Users, Expenses, Budgets, Categories.
 - [x] **Authentication**: JWT implementation (Login/Register).
-- [ ] **Core API**: CRUD for Expenses and Budgets.
+- [x] **Core API**: CRUD for Expenses and Budgets.
 - [ ] **LLM Integration**: DeepSeek API connection and prompt engineering.ploy to Railway
 
 ### Week 2: Flutter Core
