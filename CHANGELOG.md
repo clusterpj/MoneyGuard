@@ -42,6 +42,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation**:
     - Created `docs/ARCHITECTURE.md`, `docs/API.md`, `docs/SETUP.md`.
     - Reorganized documentation structure.
+- **Flutter Frontend**:
+    - Initialized Flutter project with Clean Architecture.
+    - Implemented authentication flow (Login, Register).
+    - Created `AuthProvider` with Riverpod for state management.
+    - Set up API client with Dio for HTTP requests.
+    - Configured GoRouter for navigation.
+    - Integrated Hive for local storage.
+    - Added user profile endpoint (`/user/profile`).
+    - Configured CORS for development (localhost origins).
 - **Repository**:
     - Added `README.md`, `LICENSE`, `CONTRIBUTING.md`, `.gitignore`.
     - Set up GitHub Actions workflows for Flutter and Backend.
