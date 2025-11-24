@@ -20,41 +20,33 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<User> login(String email, String password) async {
     try {
+      // OAuth2PasswordRequestForm expects 'username' and 'password' as form data
       final response = await _apiClient.dio.post(
         '/auth/login',
-        data: {'email': email, 'password': password},
+        data: {
+          'username': email, // OAuth2 uses 'username' field
+          'password': password,
+        },
+        options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        // The API returns data inside 'data' field, and user info might be there or we might need to fetch profile.
-        // Based on API docs:
-        // Login response: { success: true, data: { access_token: ..., refresh_token: ..., expires_in: ... } }
-        // It does NOT return user details directly in login response, only tokens.
-        // We might need to fetch profile after login or construct a partial user.
-        // Let's assume we need to fetch profile or the backend should return it.
-        // Checking API docs again...
-        // Login response only has tokens.
-        // Register response has user_id, email, name, tokens.
-
-        final data = response.data['data'];
-        // For login, we only get tokens. We should probably fetch the user profile immediately.
-        // Or we can return a User with just tokens and fetch profile later.
-        // Let's fetch profile here to return a complete User object.
-
+      if (response.statusCode == 200) {
+        // Login response: { access_token: ..., token_type: ... }
+        final data = response.data;
         final accessToken = data['access_token'];
         _apiClient.dio.options.headers['Authorization'] = 'Bearer $accessToken';
 
+        // Fetch user profile
         final profileResponse = await _apiClient.dio.get('/user/profile');
-        if (profileResponse.statusCode == 200 &&
-            profileResponse.data['success'] == true) {
-          final profileData = profileResponse.data['data'];
+        if (profileResponse.statusCode == 200) {
+          final profileData = profileResponse.data;
           return User(
             id: profileData['id'],
             email: profileData['email'],
-            name: profileData['name'],
-            // phone: profileData['phone'], // Profile might not have phone? API docs say it returns id, email, name, intervention_mode...
+            name: profileData['full_name'] ?? profileData['email'],
             accessToken: accessToken,
-            refreshToken: data['refresh_token'],
+            refreshToken:
+                null, // Login doesn't return refresh token in current implementation
           );
         }
         throw Exception('Failed to fetch user profile');
@@ -62,7 +54,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception(response.data['message'] ?? 'Login failed');
       }
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? e.message);
+      throw Exception(e.response?.data['detail'] ?? e.message);
     }
   }
 
