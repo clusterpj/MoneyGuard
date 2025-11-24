@@ -34,19 +34,6 @@ A financial defense system that:
 
 **Backend Setup (Days 1-3)**
 ```
-Day 1: Project Setup
-├── Initialize FastAPI project
-├── Set up PostgreSQL database (Railway)
-├── Create database schema (core tables only)
-├── Implement JWT authentication
-└── Deploy to Railway
-
-Day 2: Core API Endpoints
-├── POST /auth/register
-├── POST /auth/login
-├── GET /user/profile
-├── POST /expenses (bulk sync)
-└── GET /expenses (list)
 
 Day 3: Intervention Engine (Backend)
 ├── Build 3-gate logic

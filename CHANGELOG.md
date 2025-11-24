@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Configured dependencies (`fastapi`, `sqlalchemy`, `alembic`, `pydantic`).
     - Set up environment configuration with Pydantic Settings.
     - Created PostgreSQL database `moneyguard`.
+- **Authentication System**:
+    - Implemented JWT-based authentication (`login`, `register`).
+    - Added secure password hashing with `bcrypt`.
+    - Created `User` and `Token` Pydantic schemas.
+    - Implemented `get_current_user` dependency for protected routes.
 - **Database Schema**:
     - Implemented SQLAlchemy models: `User`, `Category`, `Expense`, `Budget`.
     - Configured Alembic for migrations.
