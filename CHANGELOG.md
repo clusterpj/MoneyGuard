@@ -1,0 +1,111 @@
+# Changelog
+
+All notable changes to MoneyGuard will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Planning
+- Complete MVP implementation (Weeks 1-4)
+- Backend API with intervention engine
+- Flutter app with OCR scanning
+- 3-gate intervention system
+- Beta launch with 10 users
+
+## [0.1.0] - 2025-11-24
+
+### Added
+- Initial project setup
+- Comprehensive documentation (SRS, MVP Plan, OCR Pivot Decision)
+- Repository structure (monorepo for frontend + backend)
+- Development configuration files
+- Contributing guidelines
+- MIT License
+
+### Documentation
+- Technical specification (SRS)
+- MVP implementation plan (4-week sprint)
+- OCR pivot decision rationale
+- Architecture overview
+- API documentation structure
+
+### Infrastructure
+- GitHub Actions CI/CD workflows
+- Issue and PR templates
+- EditorConfig for consistent coding styles
+- Environment variable templates
+
+---
+
+## Version History
+
+### Upcoming Releases
+
+#### v0.2.0 - MVP Backend (Week 1)
+- FastAPI backend setup
+- PostgreSQL database schema
+- JWT authentication
+- Core API endpoints (auth, expenses, intervention)
+- DeepSeek LLM integration
+
+#### v0.3.0 - MVP Frontend (Week 2)
+- Flutter app structure
+- OCR receipt scanning (Google ML Kit)
+- Quick manual entry
+- Local storage (Hive)
+- Authentication flow
+
+#### v0.4.0 - Integration (Week 3)
+- 3-gate intervention system
+- Background sync
+- Budget management
+- Home dashboard
+- Offline-first functionality
+
+#### v0.5.0 - Beta Launch (Week 4)
+- UI/UX polish
+- Onboarding flow
+- Bug fixes
+- Beta testing with 10 users
+- Feedback collection
+
+#### v1.0.0 - Public Release
+- Stable MVP release
+- Production-ready backend
+- Polished UI
+- Comprehensive testing
+- Play Store submission
+
+---
+
+## Release Notes Format
+
+Each release will include:
+
+### Added
+- New features and capabilities
+
+### Changed
+- Changes to existing functionality
+
+### Deprecated
+- Features that will be removed in future releases
+
+### Removed
+- Features that have been removed
+
+### Fixed
+- Bug fixes
+
+### Security
+- Security improvements and vulnerability fixes
+
+---
+
+## Links
+
+- [Repository](https://github.com/yourusername/moneyguard)
+- [Issues](https://github.com/yourusername/moneyguard/issues)
+- [Releases](https://github.com/yourusername/moneyguard/releases)
