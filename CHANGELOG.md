@@ -17,12 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-11-24
 
 ### Added
-- Initial project setup
-- Comprehensive documentation (SRS, MVP Plan, OCR Pivot Decision)
-- Repository structure (monorepo for frontend + backend)
-- Development configuration files
-- Contributing guidelines
-- MIT License
+- **Backend Foundation**:
+    - Initialized FastAPI project structure with `app/core`, `app/api`, `app/db`.
+    - Configured dependencies (`fastapi`, `sqlalchemy`, `alembic`, `pydantic`).
+    - Set up environment configuration with Pydantic Settings.
+    - Created PostgreSQL database `moneyguard`.
+- **Database Schema**:
+    - Implemented SQLAlchemy models: `User`, `Category`, `Expense`, `Budget`.
+    - Configured Alembic for migrations.
+    - Applied initial migration to create tables.
+- **Documentation**:
+    - Created `docs/ARCHITECTURE.md`, `docs/API.md`, `docs/SETUP.md`.
+    - Reorganized documentation structure.
+- **Repository**:
+    - Added `README.md`, `LICENSE`, `CONTRIBUTING.md`, `.gitignore`.
+    - Set up GitHub Actions workflows for Flutter and Backend.
 
 ### Documentation
 - Technical specification (SRS)
