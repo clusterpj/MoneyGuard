@@ -10,12 +10,12 @@ This roadmap outlines the planned features and improvements for MoneyGuard. Time
 
 **Goal**: Launch a working product with 10 beta users
 
-### Week 1: Backend Core 🚧
+### Week 1: Backend Core ✅
 - [x] **Project Setup**: Initialize FastAPI, PostgreSQL, and Docker/Railway.
 - [x] **Database Schema**: Users, Expenses, Budgets, Categories.
 - [x] **Authentication**: JWT implementation (Login/Register).
 - [x] **Core API**: CRUD for Expenses and Budgets.
-- [ ] **LLM Integration**: DeepSeek API connection and prompt engineering.ploy to Railway
+- [x] **LLM Integration**: DeepSeek API connection and prompt engineering.ploy to Railway
 
 ### Week 2: Flutter Core
 - [ ] Flutter project structure

@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     # DeepSeek
     DEEPSEEK_API_KEY: str
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"
+    DEEPSEEK_MODEL: str = "deepseek-chat"
     
     model_config = SettingsConfigDict(
         env_file=".env",

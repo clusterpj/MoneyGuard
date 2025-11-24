@@ -460,7 +460,7 @@ Week 4 (Polish)
 - [x] Set up PostgreSQL database and Alembic migrations
 - [x] Implement User model and JWT Authentication
 - [x] Implement Expense and Budget models (CRUD endpoints)
-- [ ] Integrate DeepSeek API for intervention logic
+- [x] Integrate DeepSeek API for intervention logic
 - [ ] Deploy to Railway (Staging)
 
 ### Week 3 ✅

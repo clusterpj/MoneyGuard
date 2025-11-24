@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Configured dependencies (`fastapi`, `sqlalchemy`, `alembic`, `pydantic`).
     - Set up environment configuration with Pydantic Settings.
     - Created PostgreSQL database `moneyguard`.
+- **LLM Integration**:
+    - Integrated DeepSeek API for AI-powered financial advice.
+    - Implemented 3-gate intervention logic (Budget, Velocity, Category).
+    - Created `/intervention/check` endpoint.
 - **Core API Endpoints**:
     - Implemented CRUD operations for `Expenses` and `Budgets`.
     - Created Pydantic schemas for data validation.
