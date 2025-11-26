@@ -13,7 +13,7 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).value;
-    final budgetAsync = ref.watch(budgetProvider);
+    final budgetAsync = ref.watch(currentBudgetProvider(null));
     final expensesAsync = ref.watch(recentExpensesProvider);
 
     return Scaffold(
@@ -31,7 +31,7 @@ class DashboardScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(budgetProvider);
+          ref.invalidate(currentBudgetProvider);
           ref.invalidate(recentExpensesProvider);
         },
         child: SingleChildScrollView(

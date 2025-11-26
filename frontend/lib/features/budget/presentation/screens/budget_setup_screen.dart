@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:moneyguard/features/budget/data/datasources/budget_remote_data_source.dart';
-import 'package:moneyguard/features/budget/data/repositories/budget_repository_impl.dart';
+import 'package:moneyguard/features/budget/domain/entities/budget.dart';
 import 'package:moneyguard/features/budget/presentation/providers/budget_provider.dart';
-import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart';
 
 class BudgetSetupScreen extends ConsumerStatefulWidget {
-  const BudgetSetupScreen({super.key});
+  final Budget? budgetToEdit;
+  const BudgetSetupScreen({super.key, this.budgetToEdit});
 
   @override
   ConsumerState<BudgetSetupScreen> createState() => _BudgetSetupScreenState();
@@ -15,15 +14,44 @@ class BudgetSetupScreen extends ConsumerStatefulWidget {
 
 class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  String _period = 'monthly';
-  DateTime _startDate = DateTime.now();
+  late TextEditingController _nameController;
+  late TextEditingController _amountController;
+  late String _period;
+  late DateTime _startDate;
+  late DateTime _endDate;
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    final budget = widget.budgetToEdit;
+    _nameController = TextEditingController(text: budget?.name ?? '');
+    _amountController = TextEditingController(
+      text: budget?.amount.toString() ?? '',
+    );
+    _period = budget?.period ?? 'monthly';
+    _startDate = budget?.startDate ?? DateTime.now();
+    _endDate = budget?.endDate ?? _calculateEndDate(DateTime.now(), 'monthly');
+  }
+
+  @override
   void dispose() {
+    _nameController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  DateTime _calculateEndDate(DateTime start, String period) {
+    if (period == 'weekly') {
+      return start.add(const Duration(days: 7));
+    } else {
+      // monthly
+      return DateTime(
+        start.year,
+        start.month + 1,
+        start.day,
+      ).subtract(const Duration(days: 1));
+    }
   }
 
   Future<void> _selectStartDate() async {
@@ -33,30 +61,54 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null && picked != _startDate) {
-      setState(() => _startDate = picked);
+    if (picked != null) {
+      setState(() {
+        _startDate = picked;
+        _endDate = _calculateEndDate(picked, _period);
+      });
     }
   }
 
-  Future<void> _createBudget() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
       final amount = double.parse(_amountController.text);
-      final apiClient = ref.read(apiClientProvider);
-      final dataSource = BudgetRemoteDataSourceImpl(apiClient);
-      final repository = BudgetRepositoryImpl(dataSource);
 
-      await repository.createBudget(amount, _period, _startDate);
-
-      // Invalidate budget provider to refetch
-      ref.invalidate(budgetProvider);
+      if (widget.budgetToEdit != null) {
+        // Update existing budget
+        final updatedBudget = widget.budgetToEdit!.copyWith(
+          name: _nameController.text.isEmpty ? null : _nameController.text,
+          amount: amount,
+          period: _period,
+          startDate: _startDate,
+          endDate: _endDate,
+        );
+        await ref
+            .read(budgetListProvider.notifier)
+            .updateBudget(widget.budgetToEdit!.id, updatedBudget);
+      } else {
+        // Create new budget
+        await ref
+            .read(budgetListProvider.notifier)
+            .addBudget(
+              name: _nameController.text.isEmpty ? null : _nameController.text,
+              amount: amount,
+              period: _period,
+              startDate: _startDate,
+              endDate: _endDate,
+            );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Budget created successfully!')),
+          SnackBar(
+            content: Text(
+              'Budget ${widget.budgetToEdit != null ? "updated" : "created"} successfully!',
+            ),
+          ),
         );
         context.pop();
       }
@@ -76,7 +128,9 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Set Budget')),
+      appBar: AppBar(
+        title: Text(widget.budgetToEdit != null ? 'Edit Budget' : 'Set Budget'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -85,20 +139,28 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Set Your Monthly Budget',
+                widget.budgetToEdit != null
+                    ? 'Update Your Budget'
+                    : 'Set Your Budget',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'This helps MoneyGuard track your spending and provide smart recommendations.',
-              ),
+              const Text('Track your spending and get smart recommendations.'),
               const SizedBox(height: 24),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Budget Name (Optional)',
+                  hintText: 'e.g., Monthly Budget',
+                ),
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
                   labelText: 'Budget Amount',
-                  prefixText: 'RD\$ ',
-                  hintText: '10000',
+                  prefixText: '\$ ',
+                  hintText: '1000',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -114,7 +176,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _period,
+                value: _period,
                 decoration: const InputDecoration(labelText: 'Budget Period'),
                 items: const [
                   DropdownMenuItem(value: 'monthly', child: Text('Monthly')),
@@ -122,7 +184,10 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                 ],
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() => _period = value);
+                    setState(() {
+                      _period = value;
+                      _endDate = _calculateEndDate(_startDate, value);
+                    });
                   }
                 },
               ),
@@ -139,16 +204,25 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                'End Date: ${_endDate.year}-${_endDate.month.toString().padLeft(2, '0')}-${_endDate.day.toString().padLeft(2, '0')}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _isLoading ? null : _createBudget,
+                onPressed: _isLoading ? null : _submit,
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Create Budget'),
+                    : Text(
+                        widget.budgetToEdit != null
+                            ? 'Update Budget'
+                            : 'Create Budget',
+                      ),
               ),
             ],
           ),

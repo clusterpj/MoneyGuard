@@ -10,6 +10,7 @@ import 'package:moneyguard/features/dashboard/presentation/screens/dashboard_scr
 import 'package:moneyguard/features/budget/presentation/screens/budget_setup_screen.dart';
 import 'package:moneyguard/features/expense/presentation/screens/add_expense_screen.dart';
 import 'package:moneyguard/features/expense/presentation/screens/expense_list_screen.dart';
+import 'package:moneyguard/features/budget/presentation/screens/budget_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/expenses/add',
         builder: (context, state) => const AddExpenseScreen(),
+      ),
+      GoRoute(
+        path: '/budgets',
+        builder: (context, state) => const BudgetListScreen(),
       ),
     ],
   );
