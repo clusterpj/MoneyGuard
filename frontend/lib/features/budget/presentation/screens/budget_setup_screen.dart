@@ -17,12 +17,25 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   String _period = 'monthly';
+  DateTime _startDate = DateTime.now();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _amountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectStartDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _startDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 30)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null && picked != _startDate) {
+      setState(() => _startDate = picked);
+    }
   }
 
   Future<void> _createBudget() async {
@@ -36,7 +49,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
       final dataSource = BudgetRemoteDataSourceImpl(apiClient);
       final repository = BudgetRepositoryImpl(dataSource);
 
-      await repository.createBudget(amount, _period, DateTime.now());
+      await repository.createBudget(amount, _period, _startDate);
 
       // Invalidate budget provider to refetch
       ref.invalidate(budgetProvider);
@@ -112,6 +125,19 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                     setState(() => _period = value);
                   }
                 },
+              ),
+              const SizedBox(height: 16),
+              InkWell(
+                onTap: _selectStartDate,
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Start Date',
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  child: Text(
+                    '${_startDate.year}-${_startDate.month.toString().padLeft(2, '0')}-${_startDate.day.toString().padLeft(2, '0')}',
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
               ElevatedButton(

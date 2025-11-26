@@ -28,11 +28,24 @@ class BudgetSummaryCard extends StatelessWidget {
                   'Budget Overview',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                Chip(
-                  label: Text('${budget.daysRemaining} days left'),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
+                Row(
+                  children: [
+                    Chip(
+                      label: Text('${budget.daysRemaining} days left'),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer,
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        // Navigate to budget edit
+                        Navigator.pushNamed(context, '/budget/setup');
+                      },
+                      tooltip: 'Edit Budget',
+                    ),
+                  ],
                 ),
               ],
             ),

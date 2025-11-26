@@ -51,6 +51,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Integrated Hive for local storage.
     - Added user profile endpoint (`/user/profile`).
     - Configured CORS for development (localhost origins).
+    - **Dashboard Implementation**:
+        - Created Budget and Expense domain entities.
+        - Implemented Budget and Expense repositories with remote data sources.
+        - Built Budget summary card with safe-to-spend calculation.
+        - Added recent expenses list with category icons.
+        - Implemented pull-to-refresh functionality.
+        - Created Budget setup screen with date picker.
+        - Added budget edit button.
+        - Fixed expense parsing to handle backend array response.
+        - Fixed budget entity parsing to match backend schema.
 - **Repository**:
     - Added `README.md`, `LICENSE`, `CONTRIBUTING.md`, `.gitignore`.
     - Set up GitHub Actions workflows for Flutter and Backend.

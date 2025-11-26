@@ -40,16 +40,30 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
     DateTime startDate,
   ) async {
     try {
+      // Calculate end date based on period
+      DateTime endDate;
+      if (period == 'weekly') {
+        endDate = startDate.add(const Duration(days: 7));
+      } else {
+        // monthly - add 30 days (or use month calculation)
+        endDate = DateTime(
+          startDate.year,
+          startDate.month + 1,
+          startDate.day,
+        ).subtract(const Duration(days: 1));
+      }
+
       final response = await _apiClient.dio.post(
         '/budgets',
         data: {
-          'total_amount': totalAmount,
+          'amount': totalAmount, // Backend expects 'amount', not 'total_amount'
           'period': period,
           'start_date': startDate.toIso8601String().split('T')[0], // YYYY-MM-DD
+          'end_date': endDate.toIso8601String().split('T')[0], // YYYY-MM-DD
         },
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return Budget.fromJson(response.data);
       }
       throw Exception('Failed to create budget');

@@ -21,14 +21,26 @@ class Budget {
   double get percentageSpent => (spentAmount / totalAmount) * 100;
 
   factory Budget.fromJson(Map<String, dynamic> json) {
+    final totalAmount = (json['amount'] as num).toDouble();
+    final spentAmount = (json['spent_amount'] as num?)?.toDouble() ?? 0.0;
+    final startDate = DateTime.parse(json['start_date']);
+    final endDate = DateTime.parse(json['end_date']);
+    final now = DateTime.now();
+    final daysRemaining = endDate.difference(now).inDays;
+
+    // Calculate safe to spend based on days remaining
+    final daysInPeriod = endDate.difference(startDate).inDays;
+    final dailyBudget = totalAmount / daysInPeriod;
+    final safeToSpend = dailyBudget * daysRemaining;
+
     return Budget(
       id: json['id'],
-      totalAmount: (json['total_amount'] as num).toDouble(),
-      spentAmount: (json['spent_amount'] as num).toDouble(),
-      safeToSpend: (json['safe_to_spend'] as num).toDouble(),
-      startDate: DateTime.parse(json['start_date']),
-      endDate: DateTime.parse(json['end_date']),
-      daysRemaining: json['days_remaining'] as int,
+      totalAmount: totalAmount,
+      spentAmount: spentAmount,
+      safeToSpend: safeToSpend > 0 ? safeToSpend : 0,
+      startDate: startDate,
+      endDate: endDate,
+      daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
     );
   }
 
