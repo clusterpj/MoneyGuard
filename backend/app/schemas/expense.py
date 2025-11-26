@@ -14,7 +14,7 @@ class ExpenseBase(BaseModel):
     ocr_confidence: Optional[float] = None
 
 class ExpenseCreate(ExpenseBase):
-    pass
+    category_name: Optional[str] = None
 
 class Expense(ExpenseBase):
     id: UUID4

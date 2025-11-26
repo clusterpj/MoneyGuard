@@ -5,6 +5,9 @@ class Expense {
   final String category;
   final DateTime transactionDate;
   final DateTime createdAt;
+  final String? source;
+  final String? ocrRawText;
+  final double? ocrConfidence;
 
   Expense({
     required this.id,
@@ -13,6 +16,9 @@ class Expense {
     required this.category,
     required this.transactionDate,
     required this.createdAt,
+    this.source,
+    this.ocrRawText,
+    this.ocrConfidence,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -20,9 +26,20 @@ class Expense {
       id: json['id'],
       amount: (json['amount'] as num).toDouble(),
       description: json['description'] ?? '',
-      category: json['category'] ?? 'other',
-      transactionDate: DateTime.parse(json['transaction_date']),
-      createdAt: DateTime.parse(json['created_at']),
+      category: json['category'] != null
+          ? (json['category'] is Map
+                ? json['category']['name']
+                : json['category'])
+          : 'other',
+      transactionDate: DateTime.parse(json['transaction_date'] ?? json['date']),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+      source: json['source'],
+      ocrRawText: json['ocr_raw_text'],
+      ocrConfidence: json['ocr_confidence'] != null
+          ? (json['ocr_confidence'] as num).toDouble()
+          : null,
     );
   }
 
@@ -34,6 +51,9 @@ class Expense {
       'category': category,
       'transaction_date': transactionDate.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
+      'source': source,
+      'ocr_raw_text': ocrRawText,
+      'ocr_confidence': ocrConfidence,
     };
   }
 }

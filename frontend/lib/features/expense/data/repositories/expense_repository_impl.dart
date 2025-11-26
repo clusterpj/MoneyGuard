@@ -8,8 +8,20 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   ExpenseRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<List<Expense>> getExpenses({int page = 1, int limit = 20}) async {
-    return await _remoteDataSource.getExpenses(page: page, limit: limit);
+  Future<List<Expense>> getExpenses({
+    int page = 1,
+    int limit = 20,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? categoryId,
+  }) async {
+    return await _remoteDataSource.getExpenses(
+      page: page,
+      limit: limit,
+      startDate: startDate,
+      endDate: endDate,
+      categoryId: categoryId,
+    );
   }
 
   @override
@@ -18,12 +30,33 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     required String description,
     required String category,
     required DateTime transactionDate,
+    String? source,
+    String? ocrRawText,
+    double? ocrConfidence,
   }) async {
     return await _remoteDataSource.createExpense(
       amount: amount,
       description: description,
       category: category,
       transactionDate: transactionDate,
+      source: source,
+      ocrRawText: ocrRawText,
+      ocrConfidence: ocrConfidence,
     );
+  }
+
+  @override
+  Future<Expense> uploadReceipt(String filePath) async {
+    return await _remoteDataSource.uploadReceipt(filePath);
+  }
+
+  @override
+  Future<Expense> updateExpense(String id, Expense expense) async {
+    return await _remoteDataSource.updateExpense(id, expense.toJson());
+  }
+
+  @override
+  Future<void> deleteExpense(String id) async {
+    return await _remoteDataSource.deleteExpense(id);
   }
 }

@@ -106,7 +106,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to all expenses
+                      context.push('/expenses');
                     },
                     child: const Text('See All'),
                   ),
@@ -171,7 +171,7 @@ class DashboardScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Navigate to add expense
+          context.push('/expenses/add');
         },
         icon: const Icon(Icons.add),
         label: const Text('Add Expense'),

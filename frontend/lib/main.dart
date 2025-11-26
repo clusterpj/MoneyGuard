@@ -8,6 +8,8 @@ import 'package:moneyguard/features/auth/presentation/screens/login_screen.dart'
 import 'package:moneyguard/features/auth/presentation/screens/register_screen.dart';
 import 'package:moneyguard/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:moneyguard/features/budget/presentation/screens/budget_setup_screen.dart';
+import 'package:moneyguard/features/expense/presentation/screens/add_expense_screen.dart';
+import 'package:moneyguard/features/expense/presentation/screens/expense_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +49,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/budget/setup',
         builder: (context, state) => const BudgetSetupScreen(),
+      ),
+      GoRoute(
+        path: '/expenses',
+        builder: (context, state) => const ExpenseListScreen(),
+      ),
+      GoRoute(
+        path: '/expenses/add',
+        builder: (context, state) => const AddExpenseScreen(),
       ),
     ],
   );
