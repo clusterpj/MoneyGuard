@@ -1,5 +1,5 @@
 import httpx
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from app.core.config import settings
 
 class DeepSeekClient:
@@ -56,3 +56,54 @@ class DeepSeekClient:
         
         The user is about to overspend or violate a rule. Provide a short, punchy intervention message to stop them or make them think twice.
         """
+        
+    async def parse_transactions(self, text: str) -> List[Dict[str, Any]]:
+        """
+        Parse unstructured text into a list of transactions.
+        """
+        prompt = f"""
+        Extract financial transactions from the following text.
+        Return ONLY a JSON array of objects with these fields:
+        - date: ISO 8601 string (YYYY-MM-DD)
+        - amount: float (positive for income, negative for expense)
+        - description: string
+        - category_guess: string (guess a category like 'Food', 'Transport', 'Utilities', 'Income', etc.)
+        
+        Text:
+        {text[:4000]}  # Truncate to avoid token limits if necessary
+        """
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": "You are a financial data extraction assistant. Output valid JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.1, # Low temperature for deterministic output
+            "max_tokens": 2000
+        }
+        
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=30.0)
+                response.raise_for_status()
+                result = response.json()
+                content = result["choices"][0]["message"]["content"].strip()
+                
+                # Clean up markdown code blocks if present
+                if content.startswith("```json"):
+                    content = content[7:]
+                if content.endswith("```"):
+                    content = content[:-3]
+                
+                import json
+                return json.loads(content.strip())
+            except Exception as e:
+                print(f"Error parsing transactions with DeepSeek: {e}")
+                return []
+

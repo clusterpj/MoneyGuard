@@ -12,6 +12,7 @@ abstract class BudgetRepository {
     required DateTime startDate,
     required DateTime endDate,
     String? categoryId,
+    String? emoji,
   });
   Future<Budget> updateBudget(String id, Budget budget);
   Future<void> deleteBudget(String id);

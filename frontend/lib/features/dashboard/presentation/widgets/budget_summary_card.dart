@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moneyguard/features/budget/domain/entities/budget.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 class BudgetSummaryCard extends StatelessWidget {
   final Budget budget;
@@ -39,6 +40,14 @@ class BudgetSummaryCard extends StatelessWidget {
                         context,
                       ).colorScheme.primaryContainer,
                     ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        context.push('/budget/setup', extra: budget);
+                      },
+                      tooltip: 'Edit Budget',
+                    ),
                   ],
                 ),
               ],
@@ -60,13 +69,21 @@ class BudgetSummaryCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    currencyFormat.format(remaining.abs()),
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: remaining > 0
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.red.shade900,
+                  GestureDetector(
+                    // Wrapped Text with GestureDetector
+                    onTap: () {
+                      // Navigate to budget edit
+                      context.push('/budget/setup', extra: budget);
+                    },
+                    child: Text(
+                      currencyFormat.format(remaining.abs()),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: remaining > 0
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.red.shade900,
+                          ),
                     ),
                   ),
                 ],

@@ -14,6 +14,7 @@ abstract class BudgetRemoteDataSource {
     required DateTime startDate,
     required DateTime endDate,
     String? categoryId,
+    String? emoji,
   });
   Future<Budget> updateBudget(String id, Budget budget);
   Future<void> deleteBudget(String id);
@@ -100,6 +101,7 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
     required DateTime startDate,
     required DateTime endDate,
     String? categoryId,
+    String? emoji,
   }) async {
     try {
       final response = await _apiClient.dio.post(
@@ -111,6 +113,7 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
           'start_date': startDate.toIso8601String().split('T')[0],
           'end_date': endDate.toIso8601String().split('T')[0],
           if (categoryId != null) 'category_id': categoryId,
+          if (emoji != null) 'emoji': emoji,
         },
       );
 

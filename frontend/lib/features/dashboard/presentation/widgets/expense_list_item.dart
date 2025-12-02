@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moneyguard/features/expense/domain/entities/expense.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 class ExpenseListItem extends StatelessWidget {
   final Expense expense;
@@ -31,6 +32,9 @@ class ExpenseListItem extends StatelessWidget {
           context,
         ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
+      onTap: () {
+        context.push('/expenses/add', extra: expense);
+      },
     );
   }
 

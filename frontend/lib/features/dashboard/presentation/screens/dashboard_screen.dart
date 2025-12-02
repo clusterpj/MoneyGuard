@@ -1,180 +1,146 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart';
+
+import 'package:moneyguard/core/theme/app_colors.dart';
+import 'package:moneyguard/core/theme/app_typography.dart';
 import 'package:moneyguard/features/budget/presentation/providers/budget_provider.dart';
+import 'package:moneyguard/features/dashboard/presentation/widgets/budget_hero_card.dart';
+import 'package:moneyguard/features/dashboard/presentation/widgets/quick_stats_row.dart';
+import 'package:moneyguard/features/dashboard/presentation/widgets/recent_expenses_list.dart';
 import 'package:moneyguard/features/expense/presentation/providers/expense_provider.dart';
-import 'package:moneyguard/features/dashboard/presentation/widgets/budget_summary_card.dart';
-import 'package:moneyguard/features/dashboard/presentation/widgets/expense_list_item.dart';
+import 'package:moneyguard/features/expense/presentation/widgets/quick_add_sheet.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateProvider).value;
-    final budgetAsync = ref.watch(currentBudgetProvider(null));
-    final expensesAsync = ref.watch(recentExpensesProvider);
+    final budgetState = ref.watch(currentBudgetProvider(null));
+    final expensesState = ref.watch(recentExpensesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MoneyGuard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              ref.read(authStateProvider.notifier).logout();
-              context.go('/login');
-            },
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(currentBudgetProvider);
-          ref.invalidate(recentExpensesProvider);
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Message
-              Text(
-                'Welcome, ${user?.name ?? "User"}!',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 24),
-
-              // Budget Summary
-              budgetAsync.when(
-                data: (budget) {
-                  if (budget == null) {
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.account_balance_wallet, size: 48),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No Budget Set',
-                              style: Theme.of(context).textTheme.titleLarge,
+      backgroundColor: AppColors.backgroundPrimary,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(currentBudgetProvider);
+            ref.invalidate(expenseListProvider);
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: AppColors.accentStart,
+                          child: Text(
+                            'J', // User initial
+                            style: AppTypography.titleMedium.copyWith(
+                              color: Colors.white,
                             ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Set up your monthly budget to get started',
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                context.push('/budget/setup');
-                              },
-                              child: const Text('Set Budget'),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  return BudgetSummaryCard(budget: budget);
-                },
-                loading: () => const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(32.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-                error: (error, stack) => Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('Error loading budget: $error'),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Recent Expenses
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Recent Expenses',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.push('/expenses');
-                    },
-                    child: const Text('See All'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-
-              expensesAsync.when(
-                data: (expenses) {
-                  if (expenses.isEmpty) {
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.receipt_long,
-                              size: 48,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                            const SizedBox(height: 16),
-                            const Text('No expenses yet'),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Tap the + button to add your first expense',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ],
+                        const SizedBox(width: 12),
+                        const Text(
+                          'MoneyGuard',
+                          style: AppTypography.headlineMedium,
                         ),
-                      ),
-                    );
-                  }
-                  return Card(
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: expenses.length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        return ExpenseListItem(expense: expenses[index]);
-                      },
+                      ],
                     ),
-                  );
-                },
-                loading: () => const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(32.0),
+                    IconButton(
+                      onPressed: () {
+                        // Settings
+                      },
+                      icon: const Icon(
+                        Icons.settings,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+
+                // Budget Hero Card
+                budgetState.when(
+                  data: (budget) => BudgetHeroCard(budget: budget),
+                  loading: () =>
+                      const BudgetHeroCard(budget: null, isLoading: true),
+                  error: (err, _) => Text(
+                    'Error: $err',
+                    style: const TextStyle(color: AppColors.error),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Quick Stats
+                expensesState.when(
+                  data: (expenses) => QuickStatsRow(expenses: expenses),
+                  loading: () => const SizedBox(
+                    height: 100,
                     child: Center(child: CircularProgressIndicator()),
                   ),
+                  error: (_, __) => const SizedBox.shrink(),
                 ),
-                error: (error, stack) => Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('Error loading expenses: $error'),
-                  ),
+                const SizedBox(height: 32),
+
+                // Recent Expenses
+                expensesState.when(
+                  data: (expenses) => RecentExpensesList(expenses: expenses),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, _) => Text('Error loading expenses: $err'),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 100), // Space for FAB
+              ],
+            ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.push('/expenses/add');
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Add Expense'),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [AppColors.buttonGlow],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => const QuickAddSheet(),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          label: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.add, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  'Add Expense',
+                  style: AppTypography.labelLarge.copyWith(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

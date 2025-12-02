@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:moneyguard/core/theme/app_colors.dart';
+import 'package:moneyguard/core/theme/app_typography.dart';
 import 'package:moneyguard/features/budget/domain/entities/budget.dart';
 import 'package:moneyguard/features/budget/presentation/providers/budget_provider.dart';
+import 'package:moneyguard/shared/widgets/gradient_button.dart';
+import 'package:moneyguard/shared/widgets/selectable_chip.dart';
 
 class BudgetSetupScreen extends ConsumerStatefulWidget {
   final Budget? budgetToEdit;
@@ -16,10 +22,22 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _amountController;
+  late TextEditingController _emojiController;
   late String _period;
   late DateTime _startDate;
   late DateTime _endDate;
   bool _isLoading = false;
+
+  final List<String> _commonEmojis = [
+    '💰',
+    '🏠',
+    '🚗',
+    '🍔',
+    '✈️',
+    '🎮',
+    '🎓',
+    '🏥',
+  ];
 
   @override
   void initState() {
@@ -29,6 +47,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
     _amountController = TextEditingController(
       text: budget?.amount.toString() ?? '',
     );
+    _emojiController = TextEditingController(text: budget?.emoji ?? '💰');
     _period = budget?.period ?? 'monthly';
     _startDate = budget?.startDate ?? DateTime.now();
     _endDate = budget?.endDate ?? _calculateEndDate(DateTime.now(), 'monthly');
@@ -38,6 +57,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   void dispose() {
     _nameController.dispose();
     _amountController.dispose();
+    _emojiController.dispose();
     super.dispose();
   }
 
@@ -85,6 +105,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
           period: _period,
           startDate: _startDate,
           endDate: _endDate,
+          emoji: _emojiController.text,
         );
         await ref
             .read(budgetListProvider.notifier)
@@ -99,6 +120,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
               period: _period,
               startDate: _startDate,
               endDate: _endDate,
+              emoji: _emojiController.text,
             );
       }
 
@@ -108,15 +130,20 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
             content: Text(
               'Budget ${widget.budgetToEdit != null ? "updated" : "created"} successfully!',
             ),
+            backgroundColor: AppColors.backgroundSecondary,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -128,101 +155,246 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundPrimary,
       appBar: AppBar(
         title: Text(widget.budgetToEdit != null ? 'Edit Budget' : 'Set Budget'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.budgetToEdit != null
-                    ? 'Update Your Budget'
-                    : 'Set Your Budget',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              const Text('Track your spending and get smart recommendations.'),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Budget Name (Optional)',
-                  hintText: 'e.g., Monthly Budget',
+              // Emoji Picker
+              Center(
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundSecondary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.accentStart,
+                          width: 2,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _emojiController.text,
+                        style: const TextStyle(fontSize: 40),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 50,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _commonEmojis.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final emoji = _commonEmojis[index];
+                          return GestureDetector(
+                            onTap: () =>
+                                setState(() => _emojiController.text = emoji),
+                            child: Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: _emojiController.text == emoji
+                                    ? AppColors.accentStart.withOpacity(0.2)
+                                    : AppColors.backgroundSecondary,
+                                borderRadius: BorderRadius.circular(12),
+                                border: _emojiController.text == emoji
+                                    ? Border.all(color: AppColors.accentStart)
+                                    : null,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                emoji,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
+
+              // Amount Input
+              const Text('Budget Amount', style: AppTypography.labelLarge),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Budget Amount',
-                  prefixText: '\$ ',
-                  hintText: '1000',
+                style: AppTypography.displayLarge.copyWith(fontSize: 32),
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  prefixText: 'RD\$ ',
+                  hintText: '0',
+                  hintStyle: AppTypography.displayLarge.copyWith(
+                    fontSize: 32,
+                    color: AppColors.textMuted,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.backgroundSecondary,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 24),
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Please enter a valid amount';
-                  }
+                  if (value == null || value.isEmpty) return 'Required';
+                  if (double.tryParse(value) == null) return 'Invalid amount';
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _period,
-                decoration: const InputDecoration(labelText: 'Budget Period'),
-                items: const [
-                  DropdownMenuItem(value: 'monthly', child: Text('Monthly')),
-                  DropdownMenuItem(value: 'weekly', child: Text('Weekly')),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _period = value;
-                      _endDate = _calculateEndDate(_startDate, value);
-                    });
-                  }
-                },
+              const SizedBox(height: 24),
+
+              // Name Input
+              const Text(
+                'Budget Name (Optional)',
+                style: AppTypography.labelLarge,
               ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: _selectStartDate,
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Start Date',
-                    suffixIcon: Icon(Icons.calendar_today),
-                  ),
-                  child: Text(
-                    '${_startDate.year}-${_startDate.month.toString().padLeft(2, '0')}-${_startDate.day.toString().padLeft(2, '0')}',
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _nameController,
+                style: AppTypography.bodyLarge,
+                decoration: InputDecoration(
+                  hintText: 'e.g., Monthly Groceries',
+                  filled: true,
+                  fillColor: AppColors.backgroundSecondary,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
+              const SizedBox(height: 24),
+
+              // Period Selector
+              const Text('Period', style: AppTypography.labelLarge),
               const SizedBox(height: 8),
-              Text(
-                'End Date: ${_endDate.year}-${_endDate.month.toString().padLeft(2, '0')}-${_endDate.day.toString().padLeft(2, '0')}',
-                style: Theme.of(context).textTheme.bodySmall,
+              Row(
+                children: [
+                  Expanded(
+                    child: SelectableChip(
+                      label: 'Monthly',
+                      isSelected: _period == 'monthly',
+                      onTap: () {
+                        setState(() {
+                          _period = 'monthly';
+                          _endDate = _calculateEndDate(_startDate, 'monthly');
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SelectableChip(
+                      label: 'Weekly',
+                      isSelected: _period == 'weekly',
+                      onTap: () {
+                        setState(() {
+                          _period = 'weekly';
+                          _endDate = _calculateEndDate(_startDate, 'weekly');
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        widget.budgetToEdit != null
-                            ? 'Update Budget'
-                            : 'Create Budget',
-                      ),
+              const SizedBox(height: 24),
+
+              // Date Range
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Starts', style: AppTypography.labelSmall),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: _selectStartDate,
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundSecondary,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(DateFormat.yMMMd().format(_startDate)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Ends', style: AppTypography.labelSmall),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundSecondary.withOpacity(
+                              0.5,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.event_busy,
+                                size: 16,
+                                color: AppColors.textMuted,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                DateFormat.yMMMd().format(_endDate),
+                                style: const TextStyle(
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 48),
+
+              // Submit Button
+              GradientButton(
+                text: widget.budgetToEdit != null
+                    ? 'Update Budget'
+                    : 'Create Budget',
+                onPressed: _submit,
+                isLoading: _isLoading,
               ),
             ],
           ),

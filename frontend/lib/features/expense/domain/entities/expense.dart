@@ -6,6 +6,7 @@ class Expense {
   final DateTime transactionDate;
   final DateTime createdAt;
   final String? source;
+  final String? receiptUrl;
   final String? ocrRawText;
   final double? ocrConfidence;
 
@@ -17,6 +18,7 @@ class Expense {
     required this.transactionDate,
     required this.createdAt,
     this.source,
+    this.receiptUrl,
     this.ocrRawText,
     this.ocrConfidence,
   });
@@ -36,6 +38,7 @@ class Expense {
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
       source: json['source'],
+      receiptUrl: json['receipt_url'],
       ocrRawText: json['ocr_raw_text'],
       ocrConfidence: json['ocr_confidence'] != null
           ? (json['ocr_confidence'] as num).toDouble()
@@ -52,6 +55,7 @@ class Expense {
       'transaction_date': transactionDate.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'source': source,
+      'receipt_url': receiptUrl,
       'ocr_raw_text': ocrRawText,
       'ocr_confidence': ocrConfidence,
     };

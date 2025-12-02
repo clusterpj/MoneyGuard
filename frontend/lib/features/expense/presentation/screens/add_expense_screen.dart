@@ -124,13 +124,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         } else {
           await ref
               .read(expenseListProvider.notifier)
-              .addExpense(
+              .createExpense(
                 amount: double.parse(_amountController.text),
                 description: _descriptionController.text,
                 category: _categoryController.text,
                 transactionDate: _selectedDate,
                 source: _receiptImage != null ? 'ocr' : 'manual',
-                // Pass OCR data if available (need to store it in state from _processReceipt)
               );
         }
         if (mounted) {

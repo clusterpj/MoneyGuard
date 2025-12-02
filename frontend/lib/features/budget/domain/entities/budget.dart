@@ -1,6 +1,7 @@
 class Budget {
   final String id;
   final String? name;
+  final String emoji;
   final double amount;
   final String period;
   final DateTime startDate;
@@ -13,6 +14,7 @@ class Budget {
   Budget({
     required this.id,
     this.name,
+    this.emoji = '💰',
     required this.amount,
     required this.period,
     required this.startDate,
@@ -33,6 +35,7 @@ class Budget {
     return Budget(
       id: json['id'],
       name: json['name'],
+      emoji: json['emoji'] ?? '💰',
       amount: (json['amount'] as num).toDouble(),
       period: json['period'] ?? 'monthly',
       startDate: DateTime.parse(json['start_date']),
@@ -52,6 +55,7 @@ class Budget {
     return {
       'id': id,
       'name': name,
+      'emoji': emoji,
       'amount': amount,
       'period': period,
       'start_date': startDate.toIso8601String().split('T')[0],
@@ -66,6 +70,7 @@ class Budget {
   Budget copyWith({
     String? id,
     String? name,
+    String? emoji,
     double? amount,
     String? period,
     DateTime? startDate,
@@ -78,6 +83,7 @@ class Budget {
     return Budget(
       id: id ?? this.id,
       name: name ?? this.name,
+      emoji: emoji ?? this.emoji,
       amount: amount ?? this.amount,
       period: period ?? this.period,
       startDate: startDate ?? this.startDate,

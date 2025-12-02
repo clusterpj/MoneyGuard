@@ -11,6 +11,8 @@ import 'package:moneyguard/features/budget/presentation/screens/budget_setup_scr
 import 'package:moneyguard/features/expense/presentation/screens/add_expense_screen.dart';
 import 'package:moneyguard/features/expense/presentation/screens/expense_list_screen.dart';
 import 'package:moneyguard/features/budget/presentation/screens/budget_list_screen.dart';
+import 'package:moneyguard/features/budget/domain/entities/budget.dart';
+import 'package:moneyguard/features/expense/domain/entities/expense.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +51,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/budget/setup',
-        builder: (context, state) => const BudgetSetupScreen(),
+        builder: (context, state) {
+          final budget = state.extra as Budget?;
+          return BudgetSetupScreen(budgetToEdit: budget);
+        },
       ),
       GoRoute(
         path: '/expenses',
@@ -57,7 +62,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/expenses/add',
-        builder: (context, state) => const AddExpenseScreen(),
+        builder: (context, state) {
+          final expense = state.extra as Expense?;
+          return AddExpenseScreen(expenseToEdit: expense);
+        },
       ),
       GoRoute(
         path: '/budgets',

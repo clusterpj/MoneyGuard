@@ -35,6 +35,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
     required DateTime startDate,
     required DateTime endDate,
     String? categoryId,
+    String? emoji,
   }) async {
     return await _remoteDataSource.createBudget(
       name: name,
@@ -43,6 +44,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
       startDate: startDate,
       endDate: endDate,
       categoryId: categoryId,
+      emoji: emoji,
     );
   }
 

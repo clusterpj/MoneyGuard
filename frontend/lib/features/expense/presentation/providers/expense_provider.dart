@@ -64,7 +64,7 @@ class ExpenseList extends AsyncNotifier<List<Expense>> {
     await future;
   }
 
-  Future<void> addExpense({
+  Future<void> createExpense({
     required double amount,
     required String description,
     required String category,

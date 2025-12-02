@@ -47,8 +47,9 @@ class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
         'limit': limit,
       };
 
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String();
+      }
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
       if (categoryId != null) queryParams['category_id'] = categoryId;
 

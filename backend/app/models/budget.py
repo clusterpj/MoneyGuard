@@ -14,6 +14,7 @@ class Budget(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name = Column(String, nullable=True)  # Optional name for the budget
+    emoji = Column(String, nullable=True, default="💰")  # Visual identifier
     amount = Column(Float, nullable=False)
     period = Column(Enum(BudgetPeriod), default=BudgetPeriod.MONTHLY)
     start_date = Column(Date, nullable=False)

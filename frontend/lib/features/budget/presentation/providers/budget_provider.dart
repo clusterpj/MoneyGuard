@@ -38,6 +38,7 @@ class BudgetList extends AsyncNotifier<List<Budget>> {
     required DateTime startDate,
     required DateTime endDate,
     String? categoryId,
+    String? emoji,
   }) async {
     final repository = ref.read(budgetRepositoryProvider);
     state = const AsyncValue.loading();
@@ -49,7 +50,10 @@ class BudgetList extends AsyncNotifier<List<Budget>> {
         startDate: startDate,
         endDate: endDate,
         categoryId: categoryId,
+        emoji: emoji,
       );
+      // Invalidate current budget to refresh dashboard
+      ref.invalidate(currentBudgetProvider);
       return _loadBudgets();
     });
   }
@@ -63,6 +67,8 @@ class BudgetList extends AsyncNotifier<List<Budget>> {
             .map((b) => b.id == id ? updatedBudget : b)
             .toList();
         state = AsyncValue.data(budgets);
+        // Invalidate current budget to refresh dashboard
+        ref.invalidate(currentBudgetProvider);
       }
     } catch (e) {
       rethrow;
@@ -80,6 +86,8 @@ class BudgetList extends AsyncNotifier<List<Budget>> {
 
     try {
       await repository.deleteBudget(id);
+      // Invalidate current budget to refresh dashboard
+      ref.invalidate(currentBudgetProvider);
     } catch (e) {
       state = previousState;
       rethrow;
