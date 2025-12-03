@@ -60,7 +60,32 @@ Based on exploration, the project is **approximately 40% complete** relative to 
 
 ---
 
-## Remaining Tasks by Component
+## Expenses Functionality Assessment (Updated)
+
+A detailed review of the expenses module reveals the following:
+
+### **✅ Fixed Issues**
+- **Backend** – `update_expense` endpoint now correctly handles category lookup/creation.
+- **Field mapping** – Frontend now sends `category_name` and `date` (instead of `category` and `transaction_date`).
+- **Resilient parsing** – `Expense.fromJson()` handles missing `id` (for upload‑receipt responses).
+
+### **✅ Working Features**
+- CRUD operations (create, read, update, delete) work end‑to‑end.
+- Expense list screen with filtering by date and category.
+- Receipt upload (mock OCR) and confirmation flow.
+- Integration with budget calculations (spent amount queries).
+
+### **❌ Critical Gaps**
+1. **Offline storage** – No Hive implementation for expenses; app cannot work without internet.
+2. **Intervention checks** – No automatic call to `/intervention/check` when an expense is created.
+3. **Sync service** – No background sync between local and remote data.
+
+### **Impact on MVP**
+Without offline storage and intervention checks, the core value proposition (real‑time spending warnings, offline‑first reliability) is compromised. These must be addressed before beta launch.
+
+---
+
+## Updated Remaining Tasks by Component
 
 ### **Backend (Priority: High)**
 
@@ -77,14 +102,16 @@ Based on exploration, the project is **approximately 40% complete** relative to 
 
 | Task | Description | Est. Hours | Dependencies |
 |------|-------------|------------|--------------|
-| 1. OCR receipt scanning flow | Camera/gallery picker, image upload, confirmation screen | 10 | Backend OCR endpoint |
-| 2. Intervention dialog | Modal with severity colors, AI message, proceed/cancel buttons | 6 | Intervention API |
-| 3. Budget setup wizard | Step‑by‑step UI to create monthly budget | 4 | Budget API |
-| 4. Expense list screen | Pagination, filtering by date/category, swipe to delete | 8 | Expense API |
-| 5. Sync service | Background sync, conflict resolution, offline queue | 10 | Hive, API client |
-| 6. Settings screen | AI mode selector, intervention threshold, logout | 4 | User API |
-| 7. Onboarding flow | Welcome screens, permission explanations | 6 | None |
-| 8. Polish UI/UX | Loading states, empty states, animations, dark mode | 8 | All screens |
+| 1. **Offline storage (Hive)** | Implement `ExpenseLocalDataSource` with Hive, sync queue | 8 | Hive setup |
+| 2. **Intervention check integration** | Call `/intervention/check` after expense creation, show dialog | 6 | Intervention API |
+| 3. OCR receipt scanning flow | Camera/gallery picker, image upload, confirmation screen | 10 | Backend OCR endpoint |
+| 4. Intervention dialog | Modal with severity colors, AI message, proceed/cancel buttons | 6 | Intervention API |
+| 5. Budget setup wizard | Step‑by‑step UI to create monthly budget | 4 | Budget API |
+| 6. Expense list screen | Pagination, filtering by date/category, swipe to delete | 8 | Expense API |
+| 7. Sync service | Background sync, conflict resolution, offline queue | 10 | Hive, API client |
+| 8. Settings screen | AI mode selector, intervention threshold, logout | 4 | User API |
+| 9. Onboarding flow | Welcome screens, permission explanations | 6 | None |
+| 10. Polish UI/UX | Loading states, empty states, animations, dark mode | 8 | All screens |
 
 ### **Infrastructure & DevOps (Priority: Medium)**
 
@@ -106,7 +133,7 @@ Based on exploration, the project is **approximately 40% complete** relative to 
 
 ---
 
-## Timeline & Dependencies
+## Updated Timeline & Dependencies
 
 ```mermaid
 gantt
@@ -118,25 +145,27 @@ gantt
     LLM Caching              :2025-12-07, 1d
     Job Queue                :2025-12-08, 2d
     section Frontend
-    OCR UI Flow              :2025-12-03, 3d
-    Intervention Dialog      :2025-12-06, 2d
-    Budget Setup             :2025-12-08, 1d
-    Expense List             :2025-12-09, 2d
-    Sync Service             :2025-12-11, 3d
-    Settings & Onboarding    :2025-12-14, 2d
-    Polish UI/UX             :2025-12-16, 2d
+    Offline Storage (Hive)   :2025-12-03, 2d
+    Intervention Integration :2025-12-05, 2d
+    OCR UI Flow              :2025-12-07, 3d
+    Intervention Dialog      :2025-12-10, 2d
+    Budget Setup             :2025-12-12, 1d
+    Expense List             :2025-12-13, 2d
+    Sync Service             :2025-12-15, 3d
+    Settings & Onboarding    :2025-12-18, 2d
+    Polish UI/UX             :2025-12-20, 2d
     section DevOps
     Deployment               :2025-12-10, 1d
     CI/CD                    :2025-12-11, 1d
     Monitoring               :2025-12-12, 1d
     section Testing
-    E2E Testing              :2025-12-18, 3d
-    Beta Launch              :2025-12-21, 5d
+    E2E Testing              :2025-12-22, 3d
+    Beta Launch              :2025-12-25, 5d
 ```
 
-**Total estimated development time**: ~80‑100 hours (2‑3 weeks of full‑time work).
+**Total estimated development time**: ~90‑110 hours (2.5‑3 weeks of full‑time work).
 
-**Critical path**: OCR integration → Intervention engine → Sync service → Beta testing.
+**Critical path**: Offline storage → Intervention integration → Sync service → Beta testing.
 
 ---
 
@@ -170,16 +199,12 @@ gantt
 
 ## Next Immediate Steps (Week 1)
 
-1. **Set up DeepSeek Vision OCR integration** (backend + frontend)
+1. **Implement offline storage (Hive)** – Create `ExpenseLocalDataSource` and integrate with repository.
+2. **Add intervention checks** – Call `/intervention/check` after expense creation and display dialog.
+3. **Set up DeepSeek Vision OCR integration** (backend + frontend)
    - Backend: Integrate DeepSeek Vision API, parse extracted text into amount/merchant/date.
    - Frontend: Add camera/gallery picker, upload image, display extracted data.
-2. **Complete intervention engine**
-   - Implement gate 1 (amount threshold), gate 2 (safe‑to‑spend), gate 3 (AI).
-   - Add caching for identical contexts.
-3. **Build intervention dialog**
-   - UI component that shows AI message and records user decision.
-4. **Deploy backend to Railway**
-   - Get a live API for frontend testing.
+4. **Deploy backend to Railway** – Get a live API for frontend testing.
 
 ---
 
@@ -194,6 +219,8 @@ gantt
 
 ## Ready to Proceed?
 
-This plan provides a clear roadmap to a shippable MVP. The next logical step is to start with **DeepSeek Vision OCR integration** (highest impact, moderate complexity). Alternatively, we could begin with **intervention engine improvements** if you prefer to strengthen the core AI logic first.
+This updated plan reflects the current state and prioritizes **offline storage** and **intervention integration** as the most critical gaps. The next logical step is to start with **offline storage (Hive)** because it enables offline‑first functionality, which is a core MVP requirement.
+
+Alternatively, we could begin with **DeepSeek Vision OCR integration** if you prefer to tackle the receipt‑scanning experience first.
 
 Let me know which component you’d like to tackle first, and I’ll switch to **Code Mode** to implement it.

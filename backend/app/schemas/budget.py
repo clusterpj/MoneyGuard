@@ -6,6 +6,7 @@ from app.schemas.category import Category
 
 class BudgetBase(BaseModel):
     name: Optional[str] = None
+    emoji: Optional[str] = "💰"
     amount: float
     period: Optional[BudgetPeriod] = BudgetPeriod.MONTHLY
     start_date: date

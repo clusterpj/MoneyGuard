@@ -79,13 +79,13 @@ def read_current_budget(
     # Calculate spending
     expense_query = db.query(func.sum(Expense.amount)).filter(
         Expense.user_id == current_user.id,
-        Expense.date >= budget.start_date,
-        Expense.date <= budget.end_date
+        func.date(Expense.date) >= budget.start_date,
+        func.date(Expense.date) <= budget.end_date
     )
-    
+
     if budget.category_id:
         expense_query = expense_query.filter(Expense.category_id == budget.category_id)
-    
+
     spent = expense_query.scalar() or 0.0
     remaining = budget.amount - spent
     percentage_used = (spent / budget.amount * 100) if budget.amount > 0 else 0
@@ -117,13 +117,13 @@ def get_budget_analytics(
         # Calculate spending for this budget
         expense_query = db.query(func.sum(Expense.amount)).filter(
             Expense.user_id == current_user.id,
-            Expense.date >= budget.start_date,
-            Expense.date <= budget.end_date
+            func.date(Expense.date) >= budget.start_date,
+            func.date(Expense.date) <= budget.end_date
         )
-        
+
         if budget.category_id:
             expense_query = expense_query.filter(Expense.category_id == budget.category_id)
-        
+
         spent = expense_query.scalar() or 0.0
         remaining = budget.amount - spent
         percentage_used = (spent / budget.amount * 100) if budget.amount > 0 else 0

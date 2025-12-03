@@ -86,9 +86,8 @@ class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
         data: {
           'amount': amount,
           'description': description,
-          'category':
-              category, // This might need to be category_id if backend expects UUID
-          'transaction_date': transactionDate.toIso8601String(),
+          'category_name': category,
+          'date': transactionDate.toIso8601String(),
           'source': source ?? 'manual',
           'ocr_raw_text': ocrRawText,
           'ocr_confidence': ocrConfidence,

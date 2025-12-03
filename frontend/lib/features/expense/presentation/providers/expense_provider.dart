@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart';
 import 'package:moneyguard/features/expense/data/datasources/expense_remote_data_source.dart';
+import 'package:moneyguard/features/expense/data/datasources/expense_local_data_source.dart';
 import 'package:moneyguard/features/expense/data/repositories/expense_repository_impl.dart';
 import 'package:moneyguard/features/expense/domain/entities/expense.dart';
 import 'package:moneyguard/features/expense/domain/repositories/expense_repository.dart';
+import 'package:moneyguard/features/intervention/data/datasources/intervention_remote_data_source.dart';
+import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart' show apiClientProvider;
 
 final expenseRemoteDataSourceProvider = Provider<ExpenseRemoteDataSource>((
   ref,
@@ -11,8 +14,19 @@ final expenseRemoteDataSourceProvider = Provider<ExpenseRemoteDataSource>((
   return ExpenseRemoteDataSourceImpl(ref.read(apiClientProvider));
 });
 
+final expenseLocalDataSourceProvider = Provider<ExpenseLocalDataSource>((ref) {
+  return ExpenseLocalDataSourceImpl();
+});
+
+final interventionRemoteDataSourceProvider = Provider<InterventionRemoteDataSource>((ref) {
+  return InterventionRemoteDataSource(ref.read(apiClientProvider));
+});
+
 final expenseRepositoryProvider = Provider<ExpenseRepository>((ref) {
-  return ExpenseRepositoryImpl(ref.read(expenseRemoteDataSourceProvider));
+  return ExpenseRepositoryImpl(
+    ref.read(expenseRemoteDataSourceProvider),
+    ref.read(expenseLocalDataSourceProvider),
+  );
 });
 
 class ExpenseFilters {
@@ -74,8 +88,11 @@ class ExpenseList extends AsyncNotifier<List<Expense>> {
     double? ocrConfidence,
   }) async {
     final repository = ref.read(expenseRepositoryProvider);
+    final interventionDataSource = ref.read(interventionRemoteDataSourceProvider);
+    final interventionNotifier = ref.read(interventionProvider.notifier);
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
+      // Create expense
       await repository.createExpense(
         amount: amount,
         description: description,
@@ -85,6 +102,18 @@ class ExpenseList extends AsyncNotifier<List<Expense>> {
         ocrRawText: ocrRawText,
         ocrConfidence: ocrConfidence,
       );
+      // Check intervention
+      try {
+        final interventionResult = await interventionDataSource.checkIntervention(
+          amount: amount,
+          category: category,
+        );
+        if (interventionResult['should_intervene'] == true) {
+          interventionNotifier.setIntervention(interventionResult);
+        }
+      } catch (e) {
+        // Ignore intervention errors
+      }
       return _loadExpenses();
     });
   }
@@ -137,3 +166,22 @@ final recentExpensesProvider = Provider<AsyncValue<List<Expense>>>((ref) {
   final expensesState = ref.watch(expenseListProvider);
   return expensesState.whenData((expenses) => expenses.take(5).toList());
 });
+
+class InterventionNotifier extends Notifier<Map<String, dynamic>?> {
+  @override
+  Map<String, dynamic>? build() {
+    return null;
+  }
+
+  void setIntervention(Map<String, dynamic> result) {
+    state = result;
+  }
+
+  void clear() {
+    state = null;
+  }
+}
+
+final interventionProvider = NotifierProvider<InterventionNotifier, Map<String, dynamic>?>(
+  () => InterventionNotifier(),
+);

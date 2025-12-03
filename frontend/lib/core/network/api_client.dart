@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:moneyguard/core/config/config.dart';
+import 'auth_interceptor.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -16,6 +17,7 @@ class ApiClient {
           },
         ),
       ) {
+    _dio.interceptors.add(AuthInterceptor());
     _dio.interceptors.add(
       LogInterceptor(
         request: true,

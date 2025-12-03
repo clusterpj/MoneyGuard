@@ -13,13 +13,17 @@ import 'package:moneyguard/features/expense/presentation/screens/expense_list_sc
 import 'package:moneyguard/features/budget/presentation/screens/budget_list_screen.dart';
 import 'package:moneyguard/features/budget/domain/entities/budget.dart';
 import 'package:moneyguard/features/expense/domain/entities/expense.dart';
+import 'package:moneyguard/features/expense/data/adapters/expense_hive_adapter.dart';
+import 'package:moneyguard/features/intervention/presentation/widgets/intervention_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Hive
   await Hive.initFlutter();
+  Hive.registerAdapter(ExpenseAdapter());
   await Hive.openBox('auth');
+  await Hive.openBox<Expense>('expenses');
 
   runApp(const ProviderScope(child: MoneyGuardApp()));
 }
@@ -82,13 +86,15 @@ class MoneyGuardApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    return MaterialApp.router(
-      title: 'MoneyGuard',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
+    return InterventionListener(
+      child: MaterialApp.router(
+        title: 'MoneyGuard',
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

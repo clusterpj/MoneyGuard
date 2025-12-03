@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:moneyguard/core/theme/app_colors.dart';
 import 'package:moneyguard/core/theme/app_typography.dart';
+import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart';
 import 'package:moneyguard/features/budget/presentation/providers/budget_provider.dart';
 import 'package:moneyguard/features/dashboard/presentation/widgets/budget_hero_card.dart';
 import 'package:moneyguard/features/dashboard/presentation/widgets/quick_stats_row.dart';
@@ -55,14 +56,22 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    IconButton(
-                      onPressed: () {
-                        // Settings
-                      },
+                    PopupMenuButton<String>(
                       icon: const Icon(
                         Icons.settings,
                         color: AppColors.textSecondary,
                       ),
+                      onSelected: (value) {
+                        if (value == 'logout') {
+                          ref.read(authStateProvider.notifier).logout();
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem<String>(
+                          value: 'logout',
+                          child: Text('Logout'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

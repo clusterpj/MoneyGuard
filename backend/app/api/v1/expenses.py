@@ -104,7 +104,21 @@ def update_expense(
     if not expense:
         raise HTTPException(status_code=404, detail="Expense not found")
     
-    update_data = expense_in.model_dump(exclude_unset=True)
+    # Handle category lookup/creation (similar to create)
+    if expense_in.category_name:
+        from app.models.category import Category
+        category = db.query(Category).filter(
+            Category.name == expense_in.category_name,
+            Category.user_id == current_user.id
+        ).first()
+        if not category:
+            category = Category(name=expense_in.category_name, user_id=current_user.id)
+            db.add(category)
+            db.commit()
+            db.refresh(category)
+        expense_in.category_id = category.id
+    
+    update_data = expense_in.model_dump(exclude_unset=True, exclude={"category_name"})
     for field, value in update_data.items():
         setattr(expense, field, value)
         
