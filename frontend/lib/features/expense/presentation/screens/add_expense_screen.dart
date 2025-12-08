@@ -6,6 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:moneyguard/features/expense/presentation/providers/expense_provider.dart';
 
 import 'package:moneyguard/features/expense/domain/entities/expense.dart';
+import 'package:moneyguard/core/theme/app_colors.dart';
+import 'package:moneyguard/core/theme/app_typography.dart';
+import 'package:moneyguard/shared/widgets/gradient_button.dart';
+import 'dart:ui' as ui;
 
 class AddExpenseScreen extends ConsumerStatefulWidget {
   final Expense? expenseToEdit;
@@ -58,6 +62,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         _processReceipt(pickedFile.path);
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
@@ -87,10 +92,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         _selectedDate = expenseData.transactionDate;
       });
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Receipt processed successfully!')),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('OCR Failed: $e')));
@@ -136,6 +143,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           Navigator.pop(context);
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error saving expense: $e')));
@@ -149,15 +157,40 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final isLoading = expenseState.isLoading || _isProcessingOCR;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
           widget.expenseToEdit != null ? 'Edit Expense' : 'Add Expense',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.backgroundPrimary.withValues(alpha: 0.9),
+                AppColors.backgroundSecondary.withValues(alpha: 0.9),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(color: Colors.transparent),
+            ),
+          ),
         ),
       ),
+      backgroundColor: AppColors.backgroundPrimary,
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
             child: Form(
               key: _formKey,
               child: Column(
@@ -167,112 +200,201 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   GestureDetector(
                     onTap: () => _showImageSourceSheet(),
                     child: Container(
-                      height: 150,
+                      height: 180,
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[400]!),
+                        color: AppColors.backgroundSecondary.withValues(
+                          alpha: 0.5,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: AppColors.accentStart.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
                       child: _receiptImage != null
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                _receiptImage!,
-                                fit: BoxFit.cover,
+                              borderRadius: BorderRadius.circular(24),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.file(_receiptImage!, fit: BoxFit.cover),
+                                  Container(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                  ),
+                                  const Center(
+                                    child: Icon(
+                                      Icons.refresh,
+                                      color: Colors.white,
+                                      size: 32,
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.camera_alt,
-                                  size: 40,
-                                  color: Colors.grey,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentStart.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt_outlined,
+                                    size: 32,
+                                    color: AppColors.accentStart,
+                                  ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 12),
                                 Text(
                                   'Scan Receipt',
-                                  style: TextStyle(color: Colors.grey),
+                                  style: AppTypography.bodyLarge.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Tap to capture or upload',
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: AppColors.textSecondary.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   // Amount Field
-                  TextFormField(
-                    key: const Key('amountField'),
-                    controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                  _buildPremiumField(
+                    label: 'Amount (RD\$)',
+                    child: TextFormField(
+                      key: const Key('amountField'),
+                      controller: _amountController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      style: AppTypography.headlineMedium.copyWith(
+                        color: Colors.white,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '0.00',
+                        hintStyle: TextStyle(
+                          color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        prefixIcon: const Icon(
+                          Icons.attach_money,
+                          color: AppColors.accentStart,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter amount';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Invalid number';
+                        }
+                        return null;
+                      },
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      prefixText: '\$',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter amount';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
                   // Description Field
-                  TextFormField(
-                    key: const Key('descriptionField'),
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
+                  _buildPremiumField(
+                    label: 'Description',
+                    child: TextFormField(
+                      key: const Key('descriptionField'),
+                      controller: _descriptionController,
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: Colors.white,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'What was this for?',
+                        hintStyle: TextStyle(
+                          color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        ),
+                        border: InputBorder.none,
+                        prefixIcon: const Icon(
+                          Icons.description_outlined,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter description';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter description';
-                      }
-                      return null;
-                    },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-                  // Category Field (Text for now, could be dropdown)
-                  TextFormField(
-                    controller: _categoryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      border: OutlineInputBorder(),
-                      hintText: 'e.g. Food, Transport',
+                  // Category Field
+                  _buildPremiumField(
+                    label: 'Category',
+                    child: TextFormField(
+                      controller: _categoryController,
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: Colors.white,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'e.g. Food, Transport',
+                        hintStyle: TextStyle(
+                          color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        ),
+                        border: InputBorder.none,
+                        prefixIcon: const Icon(
+                          Icons.category_outlined,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Required';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter category';
-                      }
-                      return null;
-                    },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
                   // Date Picker
-                  ListTile(
-                    title: const Text('Date'),
-                    subtitle: Text(DateFormat.yMMMd().format(_selectedDate)),
-                    trailing: const Icon(Icons.calendar_today),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                      side: const BorderSide(color: Colors.grey),
-                    ),
+                  GestureDetector(
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
                         initialDate: _selectedDate,
                         firstDate: DateTime(2000),
                         lastDate: DateTime.now(),
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.dark(
+                                primary: AppColors.accentStart,
+                                onPrimary: Colors.white,
+                                surface: AppColors.backgroundSecondary,
+                                onSurface: Colors.white,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
                       );
                       if (picked != null) {
                         setState(() {
@@ -280,56 +402,170 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         });
                       }
                     },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundSecondary.withValues(
+                          alpha: 0.6,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Date',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat.yMMMd().format(_selectedDate),
+                                style: AppTypography.bodyLarge.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 48),
 
                   // Submit Button
-                  ElevatedButton(
+                  GradientButton(
                     key: const Key('saveExpenseButton'),
+                    text: isLoading
+                        ? 'Saving...'
+                        : (widget.expenseToEdit != null
+                              ? 'Update Expense'
+                              : 'Save Expense'),
                     onPressed: isLoading ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(isLoading ? 'Saving...' : 'Save Expense'),
+                    isLoading: isLoading,
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
           if (isLoading)
-            Container(
-              color: Colors.black54,
-              child: const Center(child: CircularProgressIndicator()),
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.7),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.accentStart,
+                  ),
+                ),
+              ),
             ),
         ],
       ),
     );
   }
 
+  Widget _buildPremiumField({required String label, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTypography.labelSmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundSecondary.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          child: child,
+        ),
+      ],
+    );
+  }
+
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.backgroundSecondary,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(
+              color: AppColors.accentStart.withValues(alpha: 0.2),
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.textSecondary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: const Icon(
+                  Icons.camera_alt,
+                  color: AppColors.accentStart,
+                ),
+                title: const Text(
+                  'Take Photo',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library,
+                  color: AppColors.accentEnd,
+                ),
+                title: const Text(
+                  'Choose from Gallery',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

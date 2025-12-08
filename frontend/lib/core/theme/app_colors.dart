@@ -15,6 +15,10 @@ class AppColors {
   static const Color textSecondary = Color(0xFF94A3B8); // slate-400
   static const Color textMuted = Color(0xFF64748B); // slate-500
 
+  // Helper Aliases
+  static const Color primary = accentStart;
+  static const Color shadow = Color(0xFF000000);
+
   // Semantic Colors
   static const Color success = Color(0xFF34D399); // green-400
   static const Color warning = Color(0xFFFBBF24); // yellow-400

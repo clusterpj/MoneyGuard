@@ -136,9 +136,22 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     );
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundPrimary,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundPrimary.withValues(alpha: 0.98),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border(
+          top: BorderSide(
+            color: AppColors.accentStart.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accentStart.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
       child: SingleChildScrollView(
@@ -244,14 +257,13 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                       ? AppColors.accentStart
                       : AppColors.backgroundTertiary,
                   width: 1.5,
-                  style: BorderStyle
-                      .solid, // Dashed border is hard in standard widget, solid is fine for now or use CustomPaint
+                  style: BorderStyle.solid,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 backgroundColor: _isCustomAmount
-                    ? AppColors.accentStart.withOpacity(0.1)
+                    ? AppColors.accentStart.withValues(alpha: 0.1)
                     : null,
               ),
               child: Text(
@@ -309,14 +321,35 @@ class _CustomAmountDialogState extends State<_CustomAmountDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.backgroundSecondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: AppColors.accentStart.withValues(alpha: 0.2)),
+      ),
       title: const Text('Enter Amount', style: AppTypography.titleLarge),
       content: TextField(
         controller: _controller,
-        keyboardType: TextInputType.number,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
         autofocus: true,
-        style: AppTypography.headlineMedium,
-        decoration: const InputDecoration(prefixText: 'RD\$ ', hintText: '0'),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        style: AppTypography.headlineMedium.copyWith(color: Colors.white),
+        decoration: InputDecoration(
+          prefixText: 'RD\$ ',
+          prefixStyle: const TextStyle(color: AppColors.accentStart),
+          hintText: '0',
+          hintStyle: TextStyle(
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
+          ),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: AppColors.textSecondary.withValues(alpha: 0.3),
+            ),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.accentStart),
+          ),
+        ),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+        ],
       ),
       actions: [
         TextButton(

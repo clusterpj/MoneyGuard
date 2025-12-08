@@ -10,6 +10,8 @@ import 'package:moneyguard/features/budget/presentation/providers/budget_provide
 import 'package:moneyguard/shared/widgets/gradient_button.dart';
 import 'package:moneyguard/shared/widgets/selectable_chip.dart';
 
+import 'dart:ui' as ui;
+
 class BudgetSetupScreen extends ConsumerStatefulWidget {
   final Budget? budgetToEdit;
   const BudgetSetupScreen({super.key, this.budgetToEdit});
@@ -80,6 +82,19 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
       initialDate: _startDate,
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.accentStart,
+              onPrimary: Colors.white,
+              surface: AppColors.backgroundSecondary,
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
@@ -155,14 +170,33 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.backgroundPrimary,
       appBar: AppBar(
         title: Text(widget.budgetToEdit != null ? 'Edit Budget' : 'Set Budget'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.backgroundPrimary.withValues(alpha: 0.9),
+                AppColors.backgroundSecondary.withValues(alpha: 0.9),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(24, 100, 24, 24),
         child: Form(
           key: _formKey,
           child: Column(
@@ -173,51 +207,76 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                 child: Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 100,
+                      height: 100,
                       decoration: BoxDecoration(
-                        color: AppColors.backgroundSecondary,
+                        color: AppColors.backgroundSecondary.withValues(
+                          alpha: 0.5,
+                        ),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.accentStart,
+                          color: AppColors.accentStart.withValues(alpha: 0.5),
                           width: 2,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.accentStart.withValues(alpha: 0.2),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         _emojiController.text,
-                        style: const TextStyle(fontSize: 40),
+                        style: const TextStyle(fontSize: 48),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     SizedBox(
-                      height: 50,
+                      height: 60,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: _commonEmojis.length,
                         separatorBuilder: (context, index) =>
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         itemBuilder: (context, index) {
                           final emoji = _commonEmojis[index];
+                          final isSelected = _emojiController.text == emoji;
                           return GestureDetector(
                             onTap: () =>
                                 setState(() => _emojiController.text = emoji),
-                            child: Container(
-                              width: 50,
-                              height: 50,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: isSelected ? 60 : 50,
+                              height: isSelected ? 60 : 50,
                               decoration: BoxDecoration(
-                                color: _emojiController.text == emoji
-                                    ? AppColors.accentStart.withOpacity(0.2)
-                                    : AppColors.backgroundSecondary,
-                                borderRadius: BorderRadius.circular(12),
-                                border: _emojiController.text == emoji
-                                    ? Border.all(color: AppColors.accentStart)
-                                    : null,
+                                color: isSelected
+                                    ? AppColors.accentStart.withValues(
+                                        alpha: 0.2,
+                                      )
+                                    : AppColors.backgroundSecondary.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                borderRadius: BorderRadius.circular(16),
+                                border: isSelected
+                                    ? Border.all(
+                                        color: AppColors.accentStart,
+                                        width: 2,
+                                      )
+                                    : Border.all(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                      ),
                               ),
                               alignment: Alignment.center,
                               child: Text(
                                 emoji,
-                                style: const TextStyle(fontSize: 24),
+                                style: TextStyle(
+                                  fontSize: isSelected ? 32 : 24,
+                                ),
                               ),
                             ),
                           );
@@ -227,65 +286,130 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
 
               // Amount Input
-              const Text('Budget Amount', style: AppTypography.labelLarge),
-              const SizedBox(height: 8),
+              Text(
+                'Budget Amount',
+                style: AppTypography.labelLarge.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accentStart.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  key: const Key('budgetAmountField'),
+                  controller: _amountController,
+                  style: AppTypography.displayLarge.copyWith(
+                    fontSize: 40,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    prefixText: 'RD\$ ',
+                    prefixStyle: AppTypography.displayLarge.copyWith(
+                      fontSize: 40,
+                      color: AppColors.accentStart,
+                    ),
+                    hintText: '0',
+                    hintStyle: AppTypography.displayLarge.copyWith(
+                      fontSize: 40,
+                      color: AppColors.textSecondary.withValues(alpha: 0.2),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundSecondary.withValues(
+                      alpha: 0.8,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.05),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: const BorderSide(
+                        color: AppColors.accentStart,
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 32),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Required';
+                    if (double.tryParse(value) == null) return 'Invalid amount';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Name Input
+              Text(
+                'Budget Name (Optional)',
+                style: AppTypography.labelLarge.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
               TextFormField(
-                key: const Key('budgetAmountField'),
-                controller: _amountController,
-                style: AppTypography.displayLarge.copyWith(fontSize: 32),
-                textAlign: TextAlign.center,
+                controller: _nameController,
+                style: AppTypography.bodyLarge.copyWith(color: Colors.white),
                 decoration: InputDecoration(
-                  prefixText: 'RD\$ ',
-                  hintText: '0',
-                  hintStyle: AppTypography.displayLarge.copyWith(
-                    fontSize: 32,
-                    color: AppColors.textMuted,
+                  hintText: 'e.g., Monthly Groceries',
+                  hintStyle: TextStyle(
+                    color: AppColors.textSecondary.withValues(alpha: 0.3),
                   ),
                   filled: true,
-                  fillColor: AppColors.backgroundSecondary,
+                  fillColor: AppColors.backgroundSecondary.withValues(
+                    alpha: 0.5,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 24),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Required';
-                  if (double.tryParse(value) == null) return 'Invalid amount';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // Name Input
-              const Text(
-                'Budget Name (Optional)',
-                style: AppTypography.labelLarge,
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _nameController,
-                style: AppTypography.bodyLarge,
-                decoration: InputDecoration(
-                  hintText: 'e.g., Monthly Groceries',
-                  filled: true,
-                  fillColor: AppColors.backgroundSecondary,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: AppColors.accentStart),
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.edit_outlined,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
               // Period Selector
-              const Text('Period', style: AppTypography.labelLarge),
-              const SizedBox(height: 8),
+              Text(
+                'Period',
+                style: AppTypography.labelLarge.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -315,78 +439,126 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
               // Date Range
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Starts', style: AppTypography.labelSmall),
-                        const SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: _selectStartDate,
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSecondary.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Starts',
+                            style: AppTypography.labelSmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: _selectStartDate,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.backgroundSecondary,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.accentStart.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    size: 16,
+                                    color: AppColors.accentStart,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    DateFormat.yMMMd().format(_startDate),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Icon(
+                        Icons.arrow_forward,
+                        color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ends',
+                            style: AppTypography.labelSmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppColors.backgroundSecondary,
+                              color: AppColors.backgroundSecondary.withValues(
+                                alpha: 0.3,
+                              ),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.calendar_today,
+                                Icon(
+                                  Icons.event_busy,
                                   size: 16,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.textSecondary.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
-                                Text(DateFormat.yMMMd().format(_startDate)),
+                                Text(
+                                  DateFormat.yMMMd().format(_endDate),
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Ends', style: AppTypography.labelSmall),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.backgroundSecondary.withOpacity(
-                              0.5,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.event_busy,
-                                size: 16,
-                                color: AppColors.textMuted,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                DateFormat.yMMMd().format(_endDate),
-                                style: const TextStyle(
-                                  color: AppColors.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+
               const SizedBox(height: 48),
 
               // Submit Button
@@ -398,6 +570,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
                 onPressed: _submit,
                 isLoading: _isLoading,
               ),
+              const SizedBox(height: 40),
             ],
           ),
         ),

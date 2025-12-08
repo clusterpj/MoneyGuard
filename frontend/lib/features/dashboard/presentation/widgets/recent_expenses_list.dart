@@ -28,12 +28,27 @@ class RecentExpensesList extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Recent', style: AppTypography.titleLarge),
+            const Text(
+              'Recent Transactions',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             TextButton(
               onPressed: () => context.push('/expenses'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(50, 30),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               child: const Text(
-                'See all →',
-                style: TextStyle(color: AppColors.accentStart),
+                'View All',
+                style: TextStyle(
+                  color: AppColors.accentStart,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

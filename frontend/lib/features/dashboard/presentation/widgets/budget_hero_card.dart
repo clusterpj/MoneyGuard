@@ -95,143 +95,153 @@ class BudgetHeroCard extends StatelessWidget {
     final percentage = budget!.calculatedPercentageUsed / 100;
     final daysLeft = budget!.daysRemaining;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accentStart.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        gradient: LinearGradient(
-          colors: [
-            AppColors.backgroundSecondary,
-            AppColors.backgroundSecondary.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(
-          color: AppColors.accentStart.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    budget!.name ?? 'Monthly Budget',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentStart.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '$daysLeft days left',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.accentStart,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              IconButton(
-                key: const Key('editBudgetButton'),
-                onPressed: () => context.push('/budget/setup', extra: budget),
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+    final isOverBudget = percentage > 1.0;
 
-          // Content
-          Row(
-            children: [
-              CircularBudgetProgress(percentage: percentage),
-              const SizedBox(width: 24),
-              Expanded(
-                child: Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.backgroundSecondary,
+              AppColors.backgroundSecondary.withValues(alpha: 0.95),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadow.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+            BoxShadow(
+              color: isOverBudget
+                  ? AppColors.error.withValues(alpha: 0.15)
+                  : AppColors.primary.withValues(alpha: 0.1),
+              blurRadius: 0,
+              spreadRadius: 1, // Subtle border glow
+              offset: Offset.zero,
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('REMAINING', style: AppTypography.labelSmall),
-                    const SizedBox(height: 4),
                     Text(
-                      key: const Key('budgetRemainingAmount'),
-                      currencyFormat.format(remaining),
-                      style: AppTypography.displayLarge.copyWith(fontSize: 28),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      budget!.name ?? 'Monthly Budget',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Spent',
-                                style: AppTypography.labelSmall,
-                              ),
-                              Text(
-                                key: const Key('budgetSpentAmount'),
-                                currencyFormat.format(spent),
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.error,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentStart.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '$daysLeft days left',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: AppColors.accentStart,
                         ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Budget',
-                                style: AppTypography.labelSmall,
-                              ),
-                              Text(
-                                currencyFormat.format(total),
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ],
+                IconButton(
+                  key: const Key('editBudgetButton'),
+                  onPressed: () => context.push('/budget/setup', extra: budget),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Content
+            Row(
+              children: [
+                CircularBudgetProgress(percentage: percentage),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('REMAINING', style: AppTypography.labelSmall),
+                      const SizedBox(height: 4),
+                      Text(
+                        key: const Key('budgetRemainingAmount'),
+                        currencyFormat.format(remaining),
+                        style: AppTypography.displayLarge.copyWith(
+                          fontSize: 28,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Spent',
+                                  style: AppTypography.labelSmall,
+                                ),
+                                Text(
+                                  key: const Key('budgetSpentAmount'),
+                                  currencyFormat.format(spent),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.error,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Budget',
+                                  style: AppTypography.labelSmall,
+                                ),
+                                Text(
+                                  currencyFormat.format(total),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

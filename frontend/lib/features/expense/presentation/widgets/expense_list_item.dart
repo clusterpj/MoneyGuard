@@ -27,6 +27,7 @@ class ExpenseListItem extends ConsumerWidget {
       decimalDigits: 0,
     );
 
+    // Premium Redesign: Transparent card with blurred effect simulation (using color opacity)
     return Dismissible(
       key: Key(expense.id),
       direction: onDelete != null
@@ -34,13 +35,14 @@ class ExpenseListItem extends ConsumerWidget {
           : DismissDirection.none,
       onDismissed: (_) => onDelete?.call(),
       background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
-          color: AppColors.error,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.error.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(Icons.delete_outline, color: Colors.white),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
       ),
       child: GestureDetector(
         onTap: onTap,
@@ -48,23 +50,40 @@ class ExpenseListItem extends ConsumerWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.backgroundSecondary,
-            borderRadius: BorderRadius.circular(20),
+            color: AppColors.backgroundSecondary.withValues(
+              alpha: 0.6,
+            ), // Glass-like feel
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.05),
+              width: 1,
+            ),
           ),
           child: Row(
             children: [
-              // Category Icon
+              // Premium Category Icon with Gradient
               Container(
-                width: 48,
-                height: 48,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
-                  color: category.color.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      category.color.withValues(alpha: 0.2),
+                      category.color.withValues(alpha: 0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: category.color.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   category.emoji,
-                  style: const TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 26),
                 ),
               ),
               const SizedBox(width: 16),
@@ -78,25 +97,49 @@ class ExpenseListItem extends ConsumerWidget {
                       expense.description.isNotEmpty
                           ? expense.description
                           : category.name,
-                      style: AppTypography.labelLarge,
+                      style: AppTypography.labelLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _formatDate(expense.transactionDate),
-                      style: AppTypography.bodySmall,
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 12,
+                          color: AppColors.textSecondary.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _formatDate(expense.transactionDate),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
 
-              // Amount
-              Text(
-                currencyFormat.format(expense.amount),
-                style: AppTypography.labelLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+              // Amount with conditional coloring
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    currencyFormat.format(expense.amount),
+                    style: AppTypography.labelLarge.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

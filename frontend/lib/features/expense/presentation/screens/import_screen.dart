@@ -180,8 +180,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.backgroundPrimary.withOpacity(0.8),
-                AppColors.backgroundSecondary.withOpacity(0.8),
+                AppColors.backgroundPrimary.withValues(alpha: 0.8),
+                AppColors.backgroundSecondary.withValues(alpha: 0.8),
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -227,12 +227,12 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary.withOpacity(0.5),
+        color: AppColors.backgroundSecondary.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.accentStart.withOpacity(0.2)),
+        border: Border.all(color: AppColors.accentStart.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -243,7 +243,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.accentStart.withOpacity(0.1),
+              color: AppColors.accentStart.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -263,6 +263,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                 : 'Upload Bank Statement',
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -282,7 +283,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               onPressed: _pickFile,
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.textPrimary,
-                side: BorderSide(color: AppColors.accentStart.withOpacity(0.5)),
+                side: BorderSide(
+                  color: AppColors.accentStart.withValues(alpha: 0.5),
+                ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
                   vertical: 16,
@@ -320,26 +323,65 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             itemCount: _parsedTransactions.length,
             itemBuilder: (context, index) {
               final tx = _parsedTransactions[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.receipt_long,
-                    color: AppColors.textSecondary,
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSecondary.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    width: 1,
                   ),
-                  title: Text(tx['description'] ?? 'Unknown'),
-                  subtitle: Text(
-                    '${tx['date']} • ${tx['category_guess'] ?? 'Uncategorized'}',
-                  ),
-                  trailing: Text(
-                    '\$${tx['amount']}',
-                    style: TextStyle(
-                      color: (tx['amount'] is num && tx['amount'] < 0)
-                          ? Colors.red
-                          : Colors.green,
-                      fontWeight: FontWeight.bold,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentStart.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.receipt_long,
+                        color: AppColors.accentStart,
+                        size: 24,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tx['description'] ?? 'Unknown',
+                            style: AppTypography.bodyLarge.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${tx['date']} • ${tx['category_guess'] ?? 'Uncategorized'}',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '\$${tx['amount']}',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: (tx['amount'] is num && tx['amount'] < 0)
+                            ? AppColors.error
+                            : AppColors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
