@@ -46,10 +46,11 @@ class RecentExpensesList extends ConsumerWidget {
           itemBuilder: (context, index) {
             final expense = expenses[index];
             return ExpenseListItem(
+              key: Key('expense_item_$index'),
               expense: expense,
               onTap: () {
                 // Navigate to details or edit
-                // context.push('/expenses/edit', extra: expense);
+                context.push('/expenses/edit', extra: expense);
               },
               onDelete: () async {
                 await ref

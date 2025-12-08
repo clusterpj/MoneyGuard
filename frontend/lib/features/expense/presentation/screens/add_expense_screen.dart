@@ -202,6 +202,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
                   // Amount Field
                   TextFormField(
+                    key: const Key('amountField'),
                     controller: _amountController,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
@@ -225,6 +226,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
                   // Description Field
                   TextFormField(
+                    key: const Key('descriptionField'),
                     controller: _descriptionController,
                     decoration: const InputDecoration(
                       labelText: 'Description',
@@ -283,6 +285,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
                   // Submit Button
                   ElevatedButton(
+                    key: const Key('saveExpenseButton'),
                     onPressed: isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),

@@ -54,7 +54,7 @@ class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
       if (categoryId != null) queryParams['category_id'] = categoryId;
 
       final response = await _apiClient.dio.get(
-        '/expenses',
+        '/expenses/',
         queryParameters: queryParams,
       );
 
@@ -82,7 +82,7 @@ class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
   }) async {
     try {
       final response = await _apiClient.dio.post(
-        '/expenses',
+        '/expenses/',
         data: {
           'amount': amount,
           'description': description,
@@ -127,7 +127,7 @@ class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
   @override
   Future<Expense> updateExpense(String id, Map<String, dynamic> data) async {
     try {
-      final response = await _apiClient.dio.put('/expenses/$id', data: data);
+      final response = await _apiClient.dio.put('/expenses/$id/', data: data);
 
       if (response.statusCode == 200) {
         return Expense.fromJson(response.data);
@@ -141,7 +141,7 @@ class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
   @override
   Future<void> deleteExpense(String id) async {
     try {
-      final response = await _apiClient.dio.delete('/expenses/$id');
+      final response = await _apiClient.dio.delete('/expenses/$id/');
       if (response.statusCode != 200) {
         throw Exception('Failed to delete expense');
       }

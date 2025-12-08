@@ -41,6 +41,7 @@ class BudgetHeroCard extends StatelessWidget {
             const Text('No Active Budget', style: AppTypography.titleLarge),
             const SizedBox(height: 16),
             ElevatedButton(
+              key: const Key('createBudgetButton'),
               onPressed: () => context.push('/budget/setup'),
               child: const Text('Create Budget'),
             ),
@@ -105,6 +106,7 @@ class BudgetHeroCard extends StatelessWidget {
                 ],
               ),
               IconButton(
+                key: const Key('editBudgetButton'),
                 onPressed: () => context.push('/budget/setup', extra: budget),
                 icon: const Icon(
                   Icons.edit_outlined,

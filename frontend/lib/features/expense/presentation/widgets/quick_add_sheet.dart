@@ -142,6 +142,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
       child: SingleChildScrollView(
+        key: const Key('quickAddSheetScroll'),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -234,6 +235,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
             // Custom Amount Button
             OutlinedButton(
+              key: const Key('customAmountButton'),
               onPressed: _handleCustomAmount,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class AuthInterceptor extends Interceptor {
+  final VoidCallback? onAuthError;
+
+  AuthInterceptor({this.onAuthError});
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final authBox = Hive.box('auth');
@@ -18,8 +23,7 @@ class AuthInterceptor extends Interceptor {
       // Clear invalid token
       final authBox = Hive.box('auth');
       await authBox.clear();
-      // Optionally, you could trigger a logout event here
-      // but the auth provider will detect missing token on next build.
+      onAuthError?.call();
     }
     super.onError(err, handler);
   }

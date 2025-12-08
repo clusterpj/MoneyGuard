@@ -122,6 +122,7 @@ class DashboardScreen extends ConsumerWidget {
           boxShadow: [AppColors.buttonGlow],
         ),
         child: FloatingActionButton.extended(
+          key: const Key('addExpenseFab'),
           onPressed: () {
             showModalBottomSheet(
               context: context,

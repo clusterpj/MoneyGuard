@@ -31,6 +31,13 @@ class AuthNotifier extends AsyncNotifier<User?> {
   @override
   Future<User?> build() async {
     final repository = ref.read(authRepositoryProvider);
+
+    final apiClient = ref.read(apiClientProvider);
+    final subscription = apiClient.authErrorStream.listen((_) {
+      logout();
+    });
+    ref.onDispose(subscription.cancel);
+
     return await repository.getCurrentUser();
   }
 

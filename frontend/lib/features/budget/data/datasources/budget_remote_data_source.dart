@@ -34,121 +34,36 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
       }
 
       final response = await _apiClient.dio.get(
-        '/budgets/current',
+        '/budgets/current/',
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
 
-      if (response.statusCode == 200) {
-        return Budget.fromJson(response.data);
-      }
-      return null;
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return null;
-      }
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+// ...
 
-  @override
-  Future<List<Budget>> getBudgets() async {
-    try {
-      final response = await _apiClient.dio.get('/budgets');
-      if (response.statusCode == 200) {
-        return (response.data as List)
-            .map((json) => Budget.fromJson(json))
-            .toList();
-      }
-      throw Exception('Failed to get budgets');
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+      final response = await _apiClient.dio.get('/budgets/');
 
-  @override
-  Future<List<Budget>> getBudgetAnalytics() async {
-    try {
-      final response = await _apiClient.dio.get('/budgets/analytics');
-      if (response.statusCode == 200) {
-        return (response.data as List)
-            .map((json) => Budget.fromJson(json))
-            .toList();
-      }
-      throw Exception('Failed to get budget analytics');
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+// ...
 
-  @override
-  Future<Budget> getBudget(String id) async {
-    try {
-      final response = await _apiClient.dio.get('/budgets/$id');
-      if (response.statusCode == 200) {
-        return Budget.fromJson(response.data);
-      }
-      throw Exception('Failed to get budget');
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+      final response = await _apiClient.dio.get('/budgets/analytics/');
 
-  @override
-  Future<Budget> createBudget({
-    String? name,
-    required double amount,
-    required String period,
-    required DateTime startDate,
-    required DateTime endDate,
-    String? categoryId,
-    String? emoji,
-  }) async {
-    try {
+// ...
+
+      final response = await _apiClient.dio.get('/budgets/$id/');
+
+// ...
+
       final response = await _apiClient.dio.post(
-        '/budgets',
+        '/budgets/',
         data: {
-          if (name != null) 'name': name,
-          'amount': amount,
-          'period': period,
-          'start_date': startDate.toIso8601String().split('T')[0],
-          'end_date': endDate.toIso8601String().split('T')[0],
-          if (categoryId != null) 'category_id': categoryId,
-          if (emoji != null) 'emoji': emoji,
-        },
-      );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return Budget.fromJson(response.data);
-      }
-      throw Exception('Failed to create budget');
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+// ...
 
-  @override
-  Future<Budget> updateBudget(String id, Budget budget) async {
-    try {
       final response = await _apiClient.dio.put(
-        '/budgets/$id',
+        '/budgets/$id/',
         data: budget.toJson(),
       );
 
-      if (response.statusCode == 200) {
-        return Budget.fromJson(response.data);
-      }
-      throw Exception('Failed to update budget');
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+// ...
 
-  @override
-  Future<void> deleteBudget(String id) async {
-    try {
-      await _apiClient.dio.delete('/budgets/$id');
-    } on DioException catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.message);
-    }
-  }
+      await _apiClient.dio.delete('/budgets/$id/');
 }
