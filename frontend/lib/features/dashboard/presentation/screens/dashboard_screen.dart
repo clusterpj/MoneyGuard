@@ -10,6 +10,7 @@ import 'package:moneyguard/features/dashboard/presentation/widgets/quick_stats_r
 import 'package:moneyguard/features/dashboard/presentation/widgets/recent_expenses_list.dart';
 import 'package:moneyguard/features/expense/presentation/providers/expense_provider.dart';
 import 'package:moneyguard/features/expense/presentation/widgets/quick_add_sheet.dart';
+import 'package:moneyguard/features/ai_advisor/presentation/screens/ai_chat_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -56,20 +57,46 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    PopupMenuButton<String>(
-                      icon: const Icon(
-                        Icons.settings,
-                        color: AppColors.textSecondary,
-                      ),
-                      onSelected: (value) {
-                        if (value == 'logout') {
-                          ref.read(authStateProvider.notifier).logout();
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem<String>(
-                          value: 'logout',
-                          child: Text('Logout'),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AiChatScreen(),
+                              ),
+                            );
+                          },
+                          icon: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.accentStart.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              color: AppColors.accentStart,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        PopupMenuButton<String>(
+                          icon: const Icon(
+                            Icons.settings,
+                            color: AppColors.textSecondary,
+                          ),
+                          onSelected: (value) {
+                            if (value == 'logout') {
+                              ref.read(authStateProvider.notifier).logout();
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem<String>(
+                              value: 'logout',
+                              child: Text('Logout'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
