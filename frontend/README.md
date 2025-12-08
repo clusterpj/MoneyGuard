@@ -24,21 +24,16 @@ flutter build apk --release
 frontend/
 ├── lib/
 │   ├── core/              # Core utilities, constants, config
-│   │   ├── config.dart
-│   │   ├── constants.dart
-│   │   └── theme.dart
-│   ├── data/              # Data layer
-│   │   ├── models/        # Data models
-│   │   ├── repositories/  # Repository implementations
-│   │   └── sources/       # Data sources (local, remote)
-│   ├── domain/            # Business logic
-│   │   ├── entities/      # Domain entities
-│   │   ├── repositories/  # Repository interfaces
-│   │   └── usecases/      # Use cases
-│   ├── presentation/      # UI layer
-│   │   ├── screens/       # App screens
-│   │   ├── widgets/       # Reusable widgets
-│   │   └── providers/     # Riverpod providers
+│   │   ├── config/
+│   │   └── theme/
+│   ├── features/          # Feature-based modular architecture
+│   │   ├── ai_advisor/    # AI advice and intervention logic
+│   │   ├── auth/          # Authentication (Login, Register)
+│   │   ├── budget/        # Budget management
+│   │   ├── dashboard/     # Home screen and summary
+│   │   ├── expense/       # Expense tracking & OCR
+│   │   └── intervention/  # Gate system components
+│   ├── shared/            # Shared widgets and logic
 │   └── main.dart          # App entry point
 ├── test/                  # Unit tests
 ├── integration_test/      # Integration tests
