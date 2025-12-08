@@ -129,6 +129,7 @@ class BudgetHeroCard extends StatelessWidget {
                     const Text('REMAINING', style: AppTypography.labelSmall),
                     const SizedBox(height: 4),
                     Text(
+                      key: const Key('budgetRemainingAmount'),
                       currencyFormat.format(remaining),
                       style: AppTypography.displayLarge.copyWith(fontSize: 28),
                       maxLines: 1,
@@ -146,6 +147,7 @@ class BudgetHeroCard extends StatelessWidget {
                                 style: AppTypography.labelSmall,
                               ),
                               Text(
+                                key: const Key('budgetSpentAmount'),
                                 currencyFormat.format(spent),
                                 style: AppTypography.bodyMedium.copyWith(
                                   color: AppColors.error,

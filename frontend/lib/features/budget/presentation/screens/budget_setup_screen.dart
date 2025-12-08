@@ -233,6 +233,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
               const Text('Budget Amount', style: AppTypography.labelLarge),
               const SizedBox(height: 8),
               TextFormField(
+                key: const Key('budgetAmountField'),
                 controller: _amountController,
                 style: AppTypography.displayLarge.copyWith(fontSize: 32),
                 textAlign: TextAlign.center,
@@ -390,6 +391,7 @@ class _BudgetSetupScreenState extends ConsumerState<BudgetSetupScreen> {
 
               // Submit Button
               GradientButton(
+                key: const Key('saveBudgetButton'),
                 text: widget.budgetToEdit != null
                     ? 'Update Budget'
                     : 'Create Budget',

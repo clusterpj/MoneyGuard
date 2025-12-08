@@ -34,36 +34,127 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
       }
 
       final response = await _apiClient.dio.get(
-        '/budgets/current/',
+        '/budgets/current/', // Added trailing slash
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
 
-// ...
+      if (response.statusCode == 200) {
+        return Budget.fromJson(response.data);
+      }
+      return null;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null;
+      }
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
 
-      final response = await _apiClient.dio.get('/budgets/');
-
-// ...
-
-      final response = await _apiClient.dio.get('/budgets/analytics/');
-
-// ...
-
-      final response = await _apiClient.dio.get('/budgets/$id/');
-
-// ...
-
-      final response = await _apiClient.dio.post(
+  @override
+  Future<List<Budget>> getBudgets() async {
+    try {
+      final response = await _apiClient.dio.get(
         '/budgets/',
-        data: {
+      ); // Added trailing slash
+      if (response.statusCode == 200) {
+        return (response.data as List)
+            .map((json) => Budget.fromJson(json))
+            .toList();
+      }
+      throw Exception('Failed to get budgets');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
 
-// ...
+  @override
+  Future<List<Budget>> getBudgetAnalytics() async {
+    try {
+      final response = await _apiClient.dio.get(
+        '/budgets/analytics/',
+      ); // Added trailing slash
+      if (response.statusCode == 200) {
+        return (response.data as List)
+            .map((json) => Budget.fromJson(json))
+            .toList();
+      }
+      throw Exception('Failed to get budget analytics');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
 
-      final response = await _apiClient.dio.put(
+  @override
+  Future<Budget> getBudget(String id) async {
+    try {
+      final response = await _apiClient.dio.get(
         '/budgets/$id/',
+      ); // Added trailing slash
+      if (response.statusCode == 200) {
+        return Budget.fromJson(response.data);
+      }
+      throw Exception('Failed to get budget');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
+
+  @override
+  Future<Budget> createBudget({
+    String? name,
+    required double amount,
+    required String period,
+    required DateTime startDate,
+    required DateTime endDate,
+    String? categoryId,
+    String? emoji,
+  }) async {
+    try {
+      final response = await _apiClient.dio.post(
+        '/budgets/', // Added trailing slash
+        data: {
+          if (name != null) 'name': name,
+          'amount': amount,
+          'period': period,
+          'start_date': startDate.toIso8601String().split('T')[0],
+          'end_date': endDate.toIso8601String().split('T')[0],
+          if (categoryId != null) 'category_id': categoryId,
+          if (emoji != null) 'emoji': emoji,
+        },
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return Budget.fromJson(response.data);
+      }
+      throw Exception('Failed to create budget');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
+
+  @override
+  Future<Budget> updateBudget(String id, Budget budget) async {
+    try {
+      final response = await _apiClient.dio.put(
+        '/budgets/$id/', // Added trailing slash
         data: budget.toJson(),
       );
 
-// ...
+      if (response.statusCode == 200) {
+        return Budget.fromJson(response.data);
+      }
+      throw Exception('Failed to update budget');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
 
-      await _apiClient.dio.delete('/budgets/$id/');
+  @override
+  Future<void> deleteBudget(String id) async {
+    try {
+      await _apiClient.dio.delete('/budgets/$id/'); // Added trailing slash
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.message);
+    }
+  }
 }
