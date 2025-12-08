@@ -91,15 +91,16 @@ class MoneyGuardApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    return InterventionListener(
-      child: MaterialApp.router(
-        title: 'MoneyGuard',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        routerConfig: router,
-        debugShowCheckedModeBanner: false,
-      ),
+    return MaterialApp.router(
+      title: 'MoneyGuard',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return InterventionListener(child: child!);
+      },
     );
   }
 }

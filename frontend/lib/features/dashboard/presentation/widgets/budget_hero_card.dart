@@ -33,17 +33,52 @@ class BudgetHeroCard extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.backgroundSecondary,
+          gradient: AppColors.primaryGradient,
           borderRadius: BorderRadius.circular(24),
+          boxShadow: [AppColors.buttonGlow],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('No Active Budget', style: AppTypography.titleLarge),
+            const Icon(
+              Icons.account_balance_wallet_outlined,
+              size: 48,
+              color: Colors.white,
+            ),
             const SizedBox(height: 16),
+            const Text(
+              'No Active Budget',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Set up a budget to track your spending.',
+              style: TextStyle(color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               key: const Key('createBudgetButton'),
               onPressed: () => context.push('/budget/setup'),
-              child: const Text('Create Budget'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.accentStart,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text(
+                'Create Budget',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
@@ -65,9 +100,23 @@ class BudgetHeroCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundSecondary,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [AppColors.cardShadow],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accentStart.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+        gradient: LinearGradient(
+          colors: [
+            AppColors.backgroundSecondary,
+            AppColors.backgroundSecondary.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         border: Border.all(
-          color: AppColors.accentStart.withOpacity(0.1),
+          color: AppColors.accentStart.withOpacity(0.3),
           width: 1,
         ),
       ),

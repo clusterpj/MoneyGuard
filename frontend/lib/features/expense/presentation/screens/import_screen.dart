@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui; // For ImageFilter
+import 'package:moneyguard/core/config/config.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -19,7 +21,7 @@ class ImportService {
   final Box _authBox;
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://localhost:8000/api/v1',
+      baseUrl: Config.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 120),
     ),
@@ -165,11 +167,35 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Import Transactions'),
+        title: const Text(
+          'Import Transactions',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.backgroundPrimary.withOpacity(0.8),
+                AppColors.backgroundSecondary.withOpacity(0.8),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+        ),
       ),
+      backgroundColor: AppColors.backgroundPrimary,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -199,25 +225,83 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
 
   Widget _buildFileSelection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.accentStart.withOpacity(0.3)),
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.backgroundSecondary,
+        color: AppColors.backgroundSecondary.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.accentStart.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          const Icon(Icons.upload_file, size: 48, color: AppColors.accentStart),
-          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.accentStart.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _selectedFile != null
+                  ? Icons.check_circle
+                  : Icons.cloud_upload_rounded,
+              size: 64,
+              color: _selectedFile != null
+                  ? AppColors.success
+                  : AppColors.accentStart,
+            ),
+          ),
+          const SizedBox(height: 24),
           Text(
             _selectedFile != null
-                ? 'Selected: ${_selectedFile!.name}'
-                : 'Select Bank Statement (PDF) or PayPal Log (CSV)',
+                ? _selectedFile!.name
+                : 'Upload Bank Statement',
+            style: AppTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium,
           ),
-          const SizedBox(height: 12),
-          TextButton(onPressed: _pickFile, child: const Text('Choose File')),
+          const SizedBox(height: 8),
+          Text(
+            _selectedFile != null
+                ? '${(_selectedFile!.size / 1024).toStringAsFixed(1)} KB'
+                : 'Supports PDF & CSV files',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          if (_selectedFile == null)
+            OutlinedButton(
+              onPressed: _pickFile,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                side: BorderSide(color: AppColors.accentStart.withOpacity(0.5)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: const Text('Choose File'),
+            )
+          else
+            TextButton.icon(
+              onPressed: _pickFile,
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text('Change File'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+              ),
+            ),
         ],
       ),
     );

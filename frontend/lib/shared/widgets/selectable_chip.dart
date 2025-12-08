@@ -24,7 +24,7 @@ class SelectableChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.accentStart.withOpacity(0.1)
@@ -47,8 +47,8 @@ class SelectableChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (emoji != null) ...[
-              Text(emoji!, style: const TextStyle(fontSize: 24)),
-              const SizedBox(height: 8),
+              Text(emoji!, style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 4),
             ],
             Text(
               label,
