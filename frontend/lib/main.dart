@@ -8,13 +8,23 @@ import 'package:moneyguard/features/auth/presentation/screens/login_screen.dart'
 import 'package:moneyguard/features/auth/presentation/screens/register_screen.dart';
 import 'package:moneyguard/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:moneyguard/features/budget/presentation/screens/budget_setup_screen.dart';
+import 'package:moneyguard/features/expense/presentation/screens/add_expense_screen.dart';
+import 'package:moneyguard/features/expense/presentation/screens/expense_list_screen.dart';
+import 'package:moneyguard/features/expense/presentation/screens/import_screen.dart';
+import 'package:moneyguard/features/budget/presentation/screens/budget_list_screen.dart';
+import 'package:moneyguard/features/budget/domain/entities/budget.dart';
+import 'package:moneyguard/features/expense/domain/entities/expense.dart';
+import 'package:moneyguard/features/expense/data/adapters/expense_hive_adapter.dart';
+import 'package:moneyguard/features/intervention/presentation/widgets/intervention_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Hive
   await Hive.initFlutter();
+  Hive.registerAdapter(ExpenseAdapter());
   await Hive.openBox('auth');
+  await Hive.openBox<Expense>('expenses');
 
   runApp(const ProviderScope(child: MoneyGuardApp()));
 }
@@ -46,7 +56,29 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/budget/setup',
-        builder: (context, state) => const BudgetSetupScreen(),
+        builder: (context, state) {
+          final budget = state.extra as Budget?;
+          return BudgetSetupScreen(budgetToEdit: budget);
+        },
+      ),
+      GoRoute(
+        path: '/expenses',
+        builder: (context, state) => const ExpenseListScreen(),
+      ),
+      GoRoute(
+        path: '/expenses/add',
+        builder: (context, state) {
+          final expense = state.extra as Expense?;
+          return AddExpenseScreen(expenseToEdit: expense);
+        },
+      ),
+      GoRoute(
+        path: '/budgets',
+        builder: (context, state) => const BudgetListScreen(),
+      ),
+      GoRoute(
+        path: '/import',
+        builder: (context, state) => const ImportScreen(),
       ),
     ],
   );
@@ -66,6 +98,9 @@ class MoneyGuardApp extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return InterventionListener(child: child!);
+      },
     );
   }
 }

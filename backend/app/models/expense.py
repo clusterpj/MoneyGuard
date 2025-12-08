@@ -10,6 +10,7 @@ import enum
 class ExpenseSource(str, enum.Enum):
     MANUAL = "manual"
     OCR = "ocr"
+    IMPORT = "import"
 
 class Expense(Base):
     __tablename__ = "expenses"
@@ -20,6 +21,7 @@ class Expense(Base):
     date = Column(DateTime(timezone=True), default=func.now())
     
     source = Column(Enum(ExpenseSource), default=ExpenseSource.MANUAL)
+    receipt_url = Column(Text, nullable=True)  # URL to stored receipt image
     ocr_raw_text = Column(Text, nullable=True)
     ocr_confidence = Column(Float, nullable=True)
     

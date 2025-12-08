@@ -1,9 +1,11 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.models.user import User
 from app.models.budget import Budget
+from app.models.expense import Expense
 from app.services.llm import DeepSeekClient
-from datetime import date
+from datetime import date, datetime
 
 class InterventionService:
     def __init__(self, db: Session):
@@ -26,18 +28,16 @@ class InterventionService:
             # No budget, no intervention (or maybe warn about no budget?)
             return {"should_intervene": False, "message": None}
 
-        # Calculate remaining budget (mock logic for now, ideally sum expenses)
-        # In a real app, we'd query sum of expenses for this period
-        # For MVP, let's assume we have a way to track spent amount or just use a simple check
-        # Let's mock "spent_so_far" as 0 for now, or we need to query it.
+        # Query actual spent amount for this budget period
+        query = self.db.query(func.sum(Expense.amount)).filter(
+            Expense.user_id == user.id,
+            Expense.date >= budget.start_date,
+            Expense.date <= budget.end_date,
+        )
+        if budget.category_id is not None:
+            query = query.filter(Expense.category_id == budget.category_id)
         
-        # Gate 1: Budget Threshold
-        # If (spent + current_amount) > budget.amount
-        # For MVP, let's just check if amount > 10% of total budget as a simple rule if we don't have full spending history yet
-        # Or better, let's query the expenses.
-        
-        # TODO: Query actual spent amount
-        spent_so_far = 0.0 
+        spent_so_far = query.scalar() or 0.0
         
         remaining = budget.amount - spent_so_far
         

@@ -262,3 +262,14 @@ node_modules/
 # Backup files
 *.backup
 *.old
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md
+
+# ============================================
+# LOCAL BUILD ENVIRONMENT
+# ============================================
+android-sdk/
+jdk-17/
+frontend/test_driver/screenshots/
+

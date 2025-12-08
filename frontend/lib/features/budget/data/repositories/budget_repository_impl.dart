@@ -8,16 +8,53 @@ class BudgetRepositoryImpl implements BudgetRepository {
   BudgetRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Budget?> getCurrentBudget() async {
-    return await _remoteDataSource.getCurrentBudget();
+  Future<Budget?> getCurrentBudget({String? categoryId}) async {
+    return await _remoteDataSource.getCurrentBudget(categoryId: categoryId);
   }
 
   @override
-  Future<Budget> createBudget(
-    double totalAmount,
-    String period,
-    DateTime startDate,
-  ) async {
-    return await _remoteDataSource.createBudget(totalAmount, period, startDate);
+  Future<List<Budget>> getBudgets() async {
+    return await _remoteDataSource.getBudgets();
+  }
+
+  @override
+  Future<List<Budget>> getBudgetAnalytics() async {
+    return await _remoteDataSource.getBudgetAnalytics();
+  }
+
+  @override
+  Future<Budget> getBudget(String id) async {
+    return await _remoteDataSource.getBudget(id);
+  }
+
+  @override
+  Future<Budget> createBudget({
+    String? name,
+    required double amount,
+    required String period,
+    required DateTime startDate,
+    required DateTime endDate,
+    String? categoryId,
+    String? emoji,
+  }) async {
+    return await _remoteDataSource.createBudget(
+      name: name,
+      amount: amount,
+      period: period,
+      startDate: startDate,
+      endDate: endDate,
+      categoryId: categoryId,
+      emoji: emoji,
+    );
+  }
+
+  @override
+  Future<Budget> updateBudget(String id, Budget budget) async {
+    return await _remoteDataSource.updateBudget(id, budget);
+  }
+
+  @override
+  Future<void> deleteBudget(String id) async {
+    return await _remoteDataSource.deleteBudget(id);
   }
 }

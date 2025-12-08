@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:moneyguard/core/config/config.dart';
+import 'auth_interceptor.dart';
 
 class ApiClient {
   final Dio _dio;
+  final _authErrorController = StreamController<void>.broadcast();
 
   ApiClient()
     : _dio = Dio(
@@ -17,6 +20,9 @@ class ApiClient {
         ),
       ) {
     _dio.interceptors.add(
+      AuthInterceptor(onAuthError: () => _authErrorController.add(null)),
+    );
+    _dio.interceptors.add(
       LogInterceptor(
         request: true,
         requestHeader: true,
@@ -29,4 +35,5 @@ class ApiClient {
   }
 
   Dio get dio => _dio;
+  Stream<void> get authErrorStream => _authErrorController.stream;
 }
