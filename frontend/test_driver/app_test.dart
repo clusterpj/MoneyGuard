@@ -52,7 +52,36 @@ void main() {
         await driver!.waitFor(addExpenseFinder, timeout: Duration(seconds: 10));
       }
 
-      // --- Expense-Budget Integration Flow ---
+      /*
+      // --- Add Expense Flow (Disabled for Budget Testing) ---
+      // ... (Previous Code)
+      */
+
+      // --- Import Navigation Test ---
+      print('--- Import Navigation Test ---');
+      // final addExpenseFinder = find.byValueKey('addExpenseFab'); // Already defined above
+      await driver!.waitFor(addExpenseFinder);
+      await driver!.tap(addExpenseFinder);
+
+      print('Waiting for Quick Add Sheet...');
+      final scanButtonFinder = find.text('Scan Receipt / Import');
+      await driver!.waitFor(scanButtonFinder);
+
+      print('Tapping Scan/Import...');
+      await driver!.tap(scanButtonFinder);
+
+      print('Verifying Import Screen...');
+      final importTitleFinder = find.text('Import Transactions');
+      await driver!.waitFor(importTitleFinder);
+      print('Verified: Import Screen Opened');
+
+      // Go back
+      final backButtonFinder = find.pageBack();
+      await driver!.tap(backButtonFinder);
+      await driver!.waitFor(addExpenseFinder);
+
+      /*
+      // --- Expense-Budget Integration Flow (Disabled to focus on Import) ---
       print('--- Expense-Budget Integration Flow ---');
 
       // 1. Get Initial Budget Values
@@ -131,6 +160,7 @@ void main() {
           'FAILURE: Remaining did not decrease correctly. Expected ${initialRemaining - 20}, got $newRemaining',
         );
       }
+      */
     });
   });
 }

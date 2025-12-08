@@ -53,19 +53,32 @@ async def confirm_import(
             # Basic validation and conversion
             amount = float(tx.get("amount", 0))
             date_str = tx.get("date")
-            try:
-                date = datetime.fromisoformat(date_str)
-            except:
-                date = datetime.now()
+            date = datetime.now()
+            
+            if date_str:
+                try:
+                    # Try ISO format
+                    date = datetime.fromisoformat(date_str)
+                except ValueError:
+                    try:
+                         # Try common formats like DD/MM/YYYY or YYYY/MM/DD
+                         from dateutil import parser
+                         date = parser.parse(date_str)
+                    except:
+                        print(f"Failed to parse date: {date_str}, using now()")
+                        date = datetime.now()
                 
+            print(f"DEBUG: Creating expense. Source: 'import'")
+            
             expense = Expense(
                 amount=abs(amount), # Store as positive expense, handle income logic if needed later
                 description=tx.get("description", "Imported Transaction"),
                 date=date,
-                source="import", # Hardcoded to ensure lowercase value
+                source=ExpenseSource.IMPORT,
                 user_id=current_user.id,
                 # category_id could be matched here if we had logic, for now leave null or default
             )
+            # print(f"DEBUG: Expense object created. Source attribute: {expense.source}")
             db.add(expense)
             saved_expenses.append(expense)
         except Exception as e:

@@ -70,7 +70,7 @@ class DeepSeekClient:
         - category_guess: string (guess a category like 'Food', 'Transport', 'Utilities', 'Income', etc.)
         
         Text:
-        {text[:4000]}  # Truncate to avoid token limits if necessary
+        {text} 
         """
         
         headers = {
@@ -85,12 +85,12 @@ class DeepSeekClient:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.1, # Low temperature for deterministic output
-            "max_tokens": 2000
+            "max_tokens": 4000 # Increased for larger responses
         }
         
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=30.0)
+                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=60.0)
                 response.raise_for_status()
                 result = response.json()
                 content = result["choices"][0]["message"]["content"].strip()

@@ -279,14 +279,14 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             // Scan Receipt Button
             TextButton.icon(
               onPressed: () {
-                // TODO: Implement scan receipt
+                context.push('/import');
               },
               icon: const Icon(
-                Icons.camera_alt_outlined,
+                Icons.receipt_long_outlined,
                 color: AppColors.textSecondary,
               ),
               label: const Text(
-                'Scan receipt instead',
+                'Scan Receipt / Import',
                 style: TextStyle(color: AppColors.textSecondary),
               ),
             ),

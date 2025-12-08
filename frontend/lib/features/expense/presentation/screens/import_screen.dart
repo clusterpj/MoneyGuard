@@ -18,7 +18,11 @@ final importServiceProvider = Provider(
 class ImportService {
   final Box _authBox;
   final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'http://localhost:8000/api/v1'),
+    BaseOptions(
+      baseUrl: 'http://localhost:8000/api/v1',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 120),
+    ),
   ); // Adjust URL as needed
 
   ImportService(this._authBox);

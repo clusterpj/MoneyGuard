@@ -11,18 +11,40 @@ class StatementParserService:
     async def parse_pdf(self, file_content: bytes) -> List[Dict[str, Any]]:
         """
         Extract text from PDF and use LLM to parse transactions.
+        Handles large files by chunking pages.
         """
-        text = ""
+        all_transactions = []
         try:
             pdf_file = io.BytesIO(file_content)
             pdf_reader = pypdf.PdfReader(pdf_file)
-            for page in pdf_reader.pages:
-                text += page.extract_text() + "\n"
+            
+            # Process in chunks of pages to avoid token limits
+            chunk_size = 2 # Process 2 pages at a time
+            num_pages = len(pdf_reader.pages)
+            
+            tasks = []
+            for i in range(0, num_pages, chunk_size):
+                chunk_text = ""
+                for j in range(i, min(i + chunk_size, num_pages)):
+                    page = pdf_reader.pages[j]
+                    chunk_text += page.extract_text() + "\n"
+                
+                if chunk_text.strip():
+                    print(f"Queueing chunk {i//chunk_size + 1}...")
+                    tasks.append(self.llm_client.parse_transactions(chunk_text))
+            
+            if tasks:
+                print(f"Processing {len(tasks)} chunks in parallel...")
+                import asyncio
+                results = await asyncio.gather(*tasks)
+                for tx_list in results:
+                    all_transactions.extend(tx_list)
+                    
         except Exception as e:
             print(f"Error reading PDF: {e}")
             raise ValueError("Invalid PDF file")
 
-        return await self.llm_client.parse_transactions(text)
+        return all_transactions
 
     async def parse_csv(self, file_content: bytes) -> List[Dict[str, Any]]:
         """
