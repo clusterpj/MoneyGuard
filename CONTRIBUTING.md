@@ -112,6 +112,9 @@ git checkout -b fix/your-bug-fix
 
 **Backend:**
 ```bash
+# Start Database
+docker compose up -d postgres
+
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate

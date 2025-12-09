@@ -16,6 +16,7 @@ import 'package:moneyguard/features/budget/domain/entities/budget.dart';
 import 'package:moneyguard/features/expense/domain/entities/expense.dart';
 import 'package:moneyguard/features/expense/data/adapters/expense_hive_adapter.dart';
 import 'package:moneyguard/features/intervention/presentation/widgets/intervention_listener.dart';
+import 'package:moneyguard/features/onboarding/presentation/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ExpenseAdapter());
   await Hive.openBox('auth');
+  await Hive.openBox('settings');
   await Hive.openBox<Expense>('expenses');
 
   runApp(const ProviderScope(child: MoneyGuardApp()));
@@ -35,16 +37,34 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/login',
     redirect: (context, state) {
+      final settingsBox = Hive.box('settings');
+      final onboardingSeen = settingsBox.get(
+        'onboarding_seen',
+        defaultValue: false,
+      );
       final isLoggedIn = authState.value != null;
+
       final isLoggingIn = state.uri.toString() == '/login';
       final isRegistering = state.uri.toString() == '/register';
+      final isOnboarding = state.uri.toString() == '/onboarding';
 
-      if (!isLoggedIn && !isLoggingIn && !isRegistering) return '/login';
-      if (isLoggedIn && (isLoggingIn || isRegistering)) return '/dashboard';
+      if (!onboardingSeen && !isOnboarding) return '/onboarding';
+      if (onboardingSeen && isOnboarding) return '/login';
+
+      if (!isLoggedIn && !isLoggingIn && !isRegistering && !isOnboarding) {
+        return '/login';
+      }
+      if (isLoggedIn && (isLoggingIn || isRegistering || isOnboarding)) {
+        return '/dashboard';
+      }
 
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',

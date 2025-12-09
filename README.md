@@ -86,7 +86,7 @@ Only triggers expensive AI calls when necessary, keeping costs under $5/month.
 ### Prerequisites
 - Flutter 3.16 or higher
 - Python 3.11 or higher
-- PostgreSQL 14+ (or Railway account)
+- Docker & Docker Compose (for Database)
 - DeepSeek API key
 
 ### 1. Clone the Repository
@@ -97,6 +97,9 @@ cd moneyguard
 
 ### 2. Backend Setup
 ```bash
+# Start Database via Docker
+docker compose up -d postgres
+
 cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate

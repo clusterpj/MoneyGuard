@@ -3,59 +3,66 @@ import 'package:moneyguard/core/theme/app_colors.dart';
 import 'package:moneyguard/core/theme/app_typography.dart';
 
 class AppTheme {
-  // We only support dark theme for this redesign
-  static final ThemeData darkTheme = ThemeData(
+  // Clean Wealth Theme (Light Mode)
+  static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: AppColors.backgroundPrimary,
-    primaryColor: AppColors.accentStart,
-
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: AppColors.backgroundPrimary, // Soft Off-White
+    primaryColor: AppColors.brandPrimary, // Deep Green
     // Color Scheme
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.accentStart,
-      secondary: AppColors.accentEnd,
-      surface: AppColors.backgroundSecondary,
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.brandPrimary,
+      secondary: AppColors.brandSecondary,
+      tertiary: AppColors.brandAccent,
+      surface: AppColors.backgroundSecondary, // White used for cards usually
       error: AppColors.error,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: AppColors.textPrimary,
+      onSurfaceVariant: AppColors.textSecondary,
     ),
 
     // Typography
-    textTheme: const TextTheme(
-      displayLarge: AppTypography.displayLarge,
-      headlineMedium: AppTypography.headlineMedium,
-      titleLarge: AppTypography.titleLarge,
-      titleMedium: AppTypography.titleMedium,
-      bodyLarge: AppTypography.bodyLarge,
-      bodyMedium: AppTypography.bodyMedium,
-      bodySmall: AppTypography.bodySmall,
-      labelLarge: AppTypography.labelLarge,
-      labelSmall: AppTypography.labelSmall,
-    ),
+    textTheme:
+        const TextTheme(
+          displayLarge: AppTypography.displayLarge,
+          headlineMedium: AppTypography.headlineMedium,
+          titleLarge: AppTypography.titleLarge,
+          titleMedium: AppTypography.titleMedium,
+          bodyLarge: AppTypography.bodyLarge,
+          bodyMedium: AppTypography.bodyMedium,
+          bodySmall: AppTypography.bodySmall,
+          labelLarge: AppTypography.labelLarge,
+          labelSmall: AppTypography.labelSmall,
+        ).apply(
+          bodyColor: AppColors.textPrimary,
+          displayColor: AppColors.textPrimary,
+        ),
 
     // AppBar Theme
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: AppTypography.titleLarge,
+      titleTextStyle:
+          AppTypography.titleLarge, // Will inherit textPrimary color
       iconTheme: IconThemeData(color: AppColors.textPrimary),
+      surfaceTintColor: Colors.transparent, // Avoid tint on scroll
     ),
 
     // Card Theme
-    // Card Theme
     cardTheme: CardThemeData(
-      color: AppColors.backgroundSecondary,
+      color: AppColors.backgroundSecondary, // White
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       margin: EdgeInsets.zero,
+      shadowColor: AppColors.brandPrimary.withValues(alpha: 0.05),
     ),
 
     // Input Decoration Theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.backgroundSecondary,
+      fillColor: AppColors.backgroundSecondary, // White
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
@@ -66,7 +73,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.accentStart, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.brandPrimary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -81,26 +88,21 @@ class AppTheme {
 
     // Elevated Button Theme
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style:
-          ElevatedButton.styleFrom(
-            backgroundColor: AppColors.accentStart,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            textStyle: AppTypography.labelLarge,
-            elevation: 0,
-          ).copyWith(
-            // Create a gradient effect workaround or specific override where needed
-            // Standard button will be solid accent color
-          ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.brandPrimary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: AppTypography.labelLarge,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+      ),
     ),
 
     // Floating Action Button Theme
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppColors.accentStart,
-      foregroundColor: Colors.white,
+      backgroundColor: AppColors.brandAccent, // Soft Gold
+      foregroundColor: AppColors.brandPrimary, // Deep Green text/icon on Gold
       elevation: 4,
     ),
 
@@ -108,6 +110,7 @@ class AppTheme {
     iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 24),
   );
 
-  // Fallback light theme (same as dark for now to enforce consistency)
-  static final ThemeData lightTheme = darkTheme;
+  // We assign the same theme to 'darkTheme' for now to ensure changing system setting
+  // doesn't revert to the old dark UI, effectively forcing the 'Clean Wealth' look.
+  static final ThemeData darkTheme = lightTheme;
 }

@@ -34,12 +34,13 @@
    # If not installed, visit: https://www.python.org/downloads/
    ```
 
-3. **PostgreSQL 14+**
+3. **Docker & Docker Compose**
    ```bash
    # Check version
-   psql --version
+   docker --version
+   docker compose version
    
-   # Or use Railway for managed database
+   # If not installed, visit: https://docs.docker.com/get-docker/
    ```
 
 4. **Git**
@@ -113,8 +114,10 @@ ENVIRONMENT=development
 ### 5. Initialize Database
 
 ```bash
-# Create database
-createdb moneyguard
+# Start PostgreSQL via Docker (from root directory)
+cd ..
+docker compose up -d postgres
+cd backend
 
 # Run migrations
 alembic upgrade head
@@ -176,46 +179,20 @@ flutter run -d <device-id>
 
 ## Database Setup
 
-### Option 1: Local PostgreSQL
+### Using Docker (Recommended)
 
-#### Install PostgreSQL
-
-**macOS (Homebrew):**
-```bash
-brew install postgresql@14
-brew services start postgresql@14
-```
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
-```
-
-**Windows:**
-Download from https://www.postgresql.org/download/windows/
-
-#### Create Database
+The easiest way to run the database is with Docker.
 
 ```bash
-# Connect to PostgreSQL
-psql postgres
-
-# Create user
-CREATE USER moneyguard WITH PASSWORD 'your_password';
-
-# Create database
-CREATE DATABASE moneyguard OWNER moneyguard;
-
-# Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE moneyguard TO moneyguard;
-
-# Exit
-\q
+# Start the database container
+docker compose up -d postgres
 ```
 
-### Option 2: Railway (Recommended for MVP)
+This will run PostgreSQL 16 on port 5432. The data is persisted in a Docker volume.
+
+For more details on database management, backups, and troubleshooting, see [DOCKER.md](../DOCKER.md).
+
+### Option 2: Railway (Cloud)
 
 1. Sign up at https://railway.app
 2. Create new project

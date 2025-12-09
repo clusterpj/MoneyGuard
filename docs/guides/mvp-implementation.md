@@ -507,7 +507,10 @@ python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install fastapi uvicorn sqlalchemy psycopg2-binary python-jose passlib httpx
 
-# Create Railway project
+# OR Run locally with Docker (Recommended)
+docker compose up -d postgres
+
+# Create Railway project (for deployment)
 railway init
 railway add postgresql
 railway up
