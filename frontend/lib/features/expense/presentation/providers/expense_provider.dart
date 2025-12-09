@@ -65,6 +65,7 @@ class ExpenseList extends AsyncNotifier<List<Expense>> {
       startDate: _filters.startDate,
       endDate: _filters.endDate,
       categoryId: _filters.categoryId,
+      limit: 1000,
     );
   }
 

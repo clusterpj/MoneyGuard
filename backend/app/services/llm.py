@@ -85,12 +85,12 @@ class DeepSeekClient:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.1, # Low temperature for deterministic output
-            "max_tokens": 4000 # Increased for larger responses
+            "max_tokens": 8000 # Increased for larger responses
         }
         
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=60.0)
+                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=300.0)
                 response.raise_for_status()
                 result = response.json()
                 content = result["choices"][0]["message"]["content"].strip()
@@ -104,6 +104,67 @@ class DeepSeekClient:
                 import json
                 return json.loads(content.strip())
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 print(f"Error parsing transactions with DeepSeek: {e}")
                 return []
 
+
+    async def analyze_document(self, prompt: str, image_data: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Generic method to send text or image to LLM and get JSON back.
+        Used by DocumentAgentService.
+        """
+        messages = [{"role": "system", "content": "You are a precise document analysis AI. Return ONLY valid JSON."}]
+        
+        user_content = []
+        if prompt:
+            user_content.append({"type": "text", "text": prompt})
+        
+        if image_data:
+             user_content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{image_data}"
+                }
+            })
+            
+        messages.append({"role": "user", "content": user_content})
+
+        data = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.1,
+            "max_tokens": 8000,
+            "response_format": {"type": "json_object"}
+        }
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json=data,
+                    timeout=300.0
+                )
+                response.raise_for_status()
+                result = response.json()
+                content = result["choices"][0]["message"]["content"].strip()
+                
+                # Sanitize markdown code blocks if present
+                if content.startswith("```json"):
+                    content = content[7:]
+                if content.endswith("```"):
+                    content = content[:-3]
+                    
+                import json
+                return json.loads(content)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                print(f"Error in analyze_document: {e}")
+                # Return context for debugging or partial failure handling
+                return {"error": str(e), "status": "failed"}

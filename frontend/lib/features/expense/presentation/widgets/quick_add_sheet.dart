@@ -330,7 +330,9 @@ class _CustomAmountDialogState extends State<_CustomAmountDialog> {
         controller: _controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         autofocus: true,
-        style: AppTypography.headlineMedium.copyWith(color: Colors.white),
+        style: AppTypography.headlineMedium.copyWith(
+          color: AppColors.textPrimary,
+        ),
         decoration: InputDecoration(
           prefixText: 'RD\$ ',
           prefixStyle: const TextStyle(color: AppColors.accentStart),
