@@ -136,7 +136,7 @@ class ExpenseListItem extends ConsumerWidget {
                     style: AppTypography.labelLarge.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],

@@ -171,7 +171,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       appBar: AppBar(
         title: const Text(
           'Import Transactions',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -357,14 +360,14 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                             tx['description'] ?? 'Unknown',
                             style: AppTypography.bodyLarge.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${tx['date']} • ${tx['category_guess'] ?? 'Uncategorized'}',
+                            '${tx['date']?.toString().split('T')[0] ?? 'No Date'} • ${tx['category_guess'] ?? 'Uncategorized'}',
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                             ),

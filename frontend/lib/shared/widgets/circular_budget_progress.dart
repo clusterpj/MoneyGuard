@@ -33,15 +33,12 @@ class CircularBudgetProgress extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const Text(
                 'spent',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -93,18 +90,22 @@ class _CircularProgressPainter extends CustomPainter {
       false,
       progressPaint,
     );
-    
+
     // Optional: Draw a small indicator circle at the end of the arc
     if (percentage > 0) {
       final angle = -pi / 2 + 2 * pi * percentage;
       final indicatorX = center.dx + radius * cos(angle);
       final indicatorY = center.dy + radius * sin(angle);
-      
+
       final indicatorPaint = Paint()
         ..color = AppColors.accentEnd
         ..style = PaintingStyle.fill;
-        
-      canvas.drawCircle(Offset(indicatorX, indicatorY), strokeWidth / 2, indicatorPaint);
+
+      canvas.drawCircle(
+        Offset(indicatorX, indicatorY),
+        strokeWidth / 2,
+        indicatorPaint,
+      );
     }
   }
 
