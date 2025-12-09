@@ -1,30 +1,38 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary Backgrounds
-  static const Color backgroundPrimary = Color(0xFF0F172A); // slate-900
-  static const Color backgroundSecondary = Color(0xFF1E293B); // slate-800
-  static const Color backgroundTertiary = Color(0xFF334155); // slate-700
+  // Brand Colors (Clean Wealth)
+  static const Color brandPrimary = Color(0xFF3A5F56); // Deep desaturated green
+  static const Color brandSecondary = Color(0xFF6BA28E); // Muted mint green
+  static const Color brandAccent = Color(0xFFF4C95D); // Soft gold
 
-  // Accent Gradient
-  static const Color accentStart = Color(0xFF6366F1); // indigo-500
-  static const Color accentEnd = Color(0xFFA855F7); // purple-500
+  // Background Surfaces
+  static const Color backgroundPrimary = Color(0xFFF0F5F3); // Soft off-white
+  static const Color backgroundSecondary = Color(
+    0xFFFFFFFF,
+  ); // White (Cards/Surfaces)
+  static const Color backgroundTertiary = Color(0xFFC9D7D2); // Cool grey-green
 
   // Text Colors
-  static const Color textPrimary = Color(0xFFFFFFFF); // white
-  static const Color textSecondary = Color(0xFF94A3B8); // slate-400
-  static const Color textMuted = Color(0xFF64748B); // slate-500
-
-  // Helper Aliases
-  static const Color primary = accentStart;
-  static const Color shadow = Color(0xFF000000);
+  static const Color textPrimary = Color(0xFF1F2937); // Charcoal Dark
+  static const Color textSecondary = Color(0xFF4B5563); // Charcoal Medium
+  static const Color textMuted = Color(0xFF94A3B8); // Slate 400 (unchanged-ish)
 
   // Semantic Colors
-  static const Color success = Color(0xFF34D399); // green-400
-  static const Color warning = Color(0xFFFBBF24); // yellow-400
-  static const Color error = Color(0xFFF87171); // red-400
+  static const Color success = Color(0xFF34D399); // Green 400
+  static const Color warning = Color(0xFFFBBF24); // Yellow 400
+  static const Color error = Color(0xFFF87171); // Red 400
 
-  // Category Colors
+  // --- COMPATIBILITY ALIASES (Mapping old theme to new Clean Wealth) ---
+  // These allow the rest of the app to compile while switching to the new palette.
+  static const Color accentStart = brandPrimary;
+  static const Color accentEnd = brandSecondary;
+  static const Color primary = brandPrimary;
+  static const Color shadow = Color(
+    0xFF000000,
+  ); // Keep generic black for shadows where needed
+
+  // Category Colors (Legacy/Existing Support)
   static const Map<String, Color> categoryColors = {
     'food': Color(0xFFFF6B6B),
     'transport': Color(0xFF4ECDC4),
@@ -37,20 +45,20 @@ class AppColors {
 
   // Shadows
   static BoxShadow cardShadow = BoxShadow(
-    color: accentStart.withOpacity(0.15),
+    color: brandPrimary.withValues(alpha: 0.08),
     blurRadius: 20,
     offset: const Offset(0, 10),
   );
 
   static BoxShadow buttonGlow = BoxShadow(
-    color: accentStart.withOpacity(0.3),
-    blurRadius: 16,
+    color: brandPrimary.withValues(alpha: 0.3),
+    blurRadius: 12,
     offset: const Offset(0, 4),
   );
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [accentStart, accentEnd],
+    colors: [brandPrimary, brandSecondary],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

@@ -16,6 +16,11 @@ pip install -r requirements.txt
 cp ../.env.example .env
 # Edit .env with your configuration
 
+# Start Database (from root directory)
+cd ..
+docker compose up -d postgres
+cd backend
+
 # Run migrations
 alembic upgrade head
 
