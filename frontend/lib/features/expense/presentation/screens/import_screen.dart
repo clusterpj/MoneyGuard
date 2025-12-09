@@ -11,6 +11,7 @@ import 'package:moneyguard/core/theme/app_typography.dart';
 import 'package:moneyguard/shared/widgets/gradient_button.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart';
+import 'package:moneyguard/features/expense/domain/entities/expense_category.dart';
 
 // Provider for the import service (mocked for now, should be in a separate file)
 final importServiceProvider = Provider(
@@ -23,7 +24,7 @@ class ImportService {
     BaseOptions(
       baseUrl: Config.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 120),
+      receiveTimeout: const Duration(seconds: 600),
     ),
   ); // Adjust URL as needed
 
@@ -326,6 +327,26 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             itemCount: _parsedTransactions.length,
             itemBuilder: (context, index) {
               final tx = _parsedTransactions[index];
+
+              // Helper to find matching category from defaults
+              final String currentCat = tx['category'] ?? 'Other';
+              final matchingCat = ExpenseCategory.defaults
+                  .firstWhere(
+                    (c) => c.name.toLowerCase() == currentCat.toLowerCase(),
+                    orElse: () => ExpenseCategory.defaults.firstWhere(
+                      (c) => c.id == 'other',
+                    ),
+                  )
+                  .name;
+
+              // Ensure we have a valid value for the dropdown, defaulting to "Other" if completely unknown
+              final dropdownValue =
+                  ExpenseCategory.defaults.any((c) => c.name == matchingCat)
+                  ? matchingCat
+                  : ExpenseCategory.defaults.first.name;
+
+              final isCredit = tx['type'] == 'credit';
+
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 padding: const EdgeInsets.all(16),
@@ -337,52 +358,175 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                     width: 1,
                   ),
                 ),
-                child: Row(
+                child: Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentStart.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.receipt_long,
-                        color: AppColors.accentStart,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tx['description'] ?? 'Unknown',
-                            style: AppTypography.bodyLarge.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isCredit
+                                ? AppColors.success.withValues(alpha: 0.1)
+                                : AppColors.accentStart.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${tx['date']?.toString().split('T')[0] ?? 'No Date'} • ${tx['category_guess'] ?? 'Uncategorized'}',
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
+                          child: Icon(
+                            isCredit
+                                ? Icons.arrow_downward
+                                : Icons.receipt_long,
+                            color: isCredit
+                                ? AppColors.success
+                                : AppColors.accentStart,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tx['description'] ?? 'Unknown',
+                                style: AppTypography.bodyLarge.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                // Show raw date
+                                '${tx['date']?.toString().split('T')[0] ?? 'No Date'}',
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '\$${tx['amount']}',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: isCredit
+                                ? AppColors.success
+                                : AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Editing Row
+                    Row(
+                      children: [
+                        // Category Dropdown
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundPrimary,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: dropdownValue,
+                                isDense: true,
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppColors.textSecondary,
+                                ),
+                                style: AppTypography.bodyMedium,
+                                dropdownColor: AppColors.backgroundSecondary,
+                                items: ExpenseCategory.defaults.map((c) {
+                                  return DropdownMenuItem(
+                                    value: c.name,
+                                    child: Row(
+                                      children: [
+                                        Text(c.emoji),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          c.name,
+                                          style: const TextStyle(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    tx['category'] = val;
+                                  });
+                                },
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '\$${tx['amount']}',
-                      style: AppTypography.titleMedium.copyWith(
-                        color: (tx['amount'] is num && tx['amount'] < 0)
-                            ? AppColors.error
-                            : AppColors.success,
-                        fontWeight: FontWeight.bold,
-                      ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Type Dropdown (Credit/Debit)
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundPrimary,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: tx['type'] == 'credit'
+                                    ? 'Credit'
+                                    : 'Debit',
+                                isDense: true,
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: AppColors.textSecondary,
+                                ),
+                                style: AppTypography.bodyMedium,
+                                dropdownColor: AppColors.backgroundSecondary,
+                                items: ['Debit', 'Credit'].map((t) {
+                                  return DropdownMenuItem(
+                                    value: t,
+                                    child: Text(
+                                      t,
+                                      style: TextStyle(
+                                        color: t == 'Credit'
+                                            ? AppColors.success
+                                            : AppColors.error,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    tx['type'] = val?.toLowerCase();
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

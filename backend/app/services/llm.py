@@ -85,12 +85,12 @@ class DeepSeekClient:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.1, # Low temperature for deterministic output
-            "max_tokens": 4000 # Increased for larger responses
+            "max_tokens": 8000 # Increased for larger responses
         }
         
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=60.0)
+                response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=data, timeout=300.0)
                 response.raise_for_status()
                 result = response.json()
                 content = result["choices"][0]["message"]["content"].strip()
@@ -104,6 +104,8 @@ class DeepSeekClient:
                 import json
                 return json.loads(content.strip())
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 print(f"Error parsing transactions with DeepSeek: {e}")
                 return []
 
@@ -133,7 +135,7 @@ class DeepSeekClient:
             "model": self.model,
             "messages": messages,
             "temperature": 0.1,
-            "max_tokens": 4000,
+            "max_tokens": 8000,
             "response_format": {"type": "json_object"}
         }
 
@@ -146,7 +148,7 @@ class DeepSeekClient:
                         "Content-Type": "application/json"
                     },
                     json=data,
-                    timeout=60.0
+                    timeout=300.0
                 )
                 response.raise_for_status()
                 result = response.json()
@@ -161,6 +163,8 @@ class DeepSeekClient:
                 import json
                 return json.loads(content)
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 print(f"Error in analyze_document: {e}")
                 # Return context for debugging or partial failure handling
                 return {"error": str(e), "status": "failed"}

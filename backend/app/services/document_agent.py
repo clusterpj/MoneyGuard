@@ -6,6 +6,7 @@ import pypdf
 import io
 from app.services.llm import DeepSeekClient
 from app.services.ocr import OCRService
+import asyncio
 
 class DocumentAgentService:
     def __init__(self):
@@ -36,7 +37,9 @@ class DocumentAgentService:
         doc_type = classification.get("document_type", "generic_document")
 
         # 3. Structured Extraction
-        if doc_type == "bank_statement":
+        if doc_type in ["bank_statement", "credit_card_statement"] and (len(text_content) > 15000 or extraction_result.get("page_count", 0) > 5):
+             structured_data = await self._process_large_document_strategy(extraction_result.get("pages", []), doc_type)
+        elif doc_type == "bank_statement":
             structured_data = await self._extract_bank_statement(text_content, image_data)
         elif doc_type == "credit_card_statement":
             structured_data = await self._extract_credit_card_statement(text_content, image_data)
@@ -76,9 +79,12 @@ class DocumentAgentService:
                 pdf_file = io.BytesIO(file_content)
                 pdf_reader = pypdf.PdfReader(pdf_file)
                 result["page_count"] = len(pdf_reader.pages)
+                result["pages"] = [] 
                 text = ""
                 for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
+                    page_text = page.extract_text() or ""
+                    result["pages"].append(page_text)
+                    text += page_text + "\n"
                 
                 result["text"] = text.strip()
                 
@@ -103,6 +109,88 @@ class DocumentAgentService:
         
         return result
 
+    async def _process_large_document_strategy(self, pages: List[str], doc_type: str) -> Dict[str, Any]:
+        """
+        Strategy for large documents:
+        1. Process first page (or first 2) to get Metadata (Bank Name, Account, Balances).
+        2. Process all pages in chunks to get Transactions.
+        3. Aggregate results.
+        """
+        print(f"DEBUG: Processing large document with {len(pages)} pages using Batch Strategy.")
+        
+        # 1. Metadata Extraction (First 2 pages max)
+        metadata_text = "\n".join(pages[:2])
+        metadata_prompt = f"""
+        Extract ONLY metadata for a {doc_type.upper().replace('_', ' ')}.
+        Do NOT extract transactions list yet.
+        
+        Return JSON schema:
+        {{
+          "bank_name": string | null,
+          "account_holder": string | null,
+          "account_number": string | null,
+          "period_start": "YYYY-MM-DD" | null,
+          "period_end": "YYYY-MM-DD" | null,
+          "opening_balance": number | null,
+          "closing_balance": number | null,
+          "currency": string | null
+        }}
+        
+        Text:
+        {metadata_text}
+        """
+        metadata = await self.llm_client.analyze_document(metadata_prompt)
+        
+        # 2. Transaction Extraction (Batch Processing)
+        all_transactions = []
+        
+        # Chunk pages (e.g., 3 pages per chunk to stay within context limit)
+        chunk_size = 3
+        tasks = []
+        for i in range(0, len(pages), chunk_size):
+            chunk = pages[i:i + chunk_size]
+            chunk_text = "\n".join(chunk)
+            print(f"DEBUG: Creating task for chunk {i//chunk_size + 1}...")
+            tasks.append(self._extract_transactions_batch(chunk_text, doc_type))
+            
+        results = await asyncio.gather(*tasks)
+        
+        for transactions in results:
+            all_transactions.extend(transactions)
+            
+        # 3. Merge
+        metadata["transactions"] = all_transactions
+        return metadata
+
+    async def _extract_transactions_batch(self, text: str, doc_type: str) -> List[Dict[str, Any]]:
+        target = "credit card" if "credit" in doc_type else "bank"
+        prompt = f"""
+        Extract list of financial transactions from this {target} statement chunk.
+        Return ONLY a JSON object with a "transactions" key containing the array.
+        
+        Analyze each transaction to determine:
+        1. "type": "credit" (income/payment) or "debit" (expense/purchase).
+        2. "category": Guess from [Food, Transport, Utilities, Housing, Entertainment, Health, Shopping, Salary, Transfers, Other].
+
+        Schema:
+        {{
+            "transactions": [
+                {{
+                    "date": "YYYY-MM-DD",
+                    "description": string,
+                    "amount": number (absolute value),
+                    "type": "credit" | "debit",
+                    "category": string
+                }}
+            ]
+        }}
+        
+        Text:
+        {text}
+        """
+        result = await self.llm_client.analyze_document(prompt)
+        return result.get("transactions", [])
+
     async def _classify_document(self, text: str, image_data: Optional[str]) -> Dict[str, Any]:
         prompt = """
         Analyze this document and classify it into one of the following types:
@@ -123,6 +211,11 @@ class DocumentAgentService:
     async def _extract_bank_statement(self, text: str, image_data: Optional[str]) -> Dict[str, Any]:
         prompt = """
         Extract structure for BANK STATEMENT.
+        
+        Analyze each transaction to determine:
+        1. "type": "credit" (income/deposit) or "debit" (expense/withdrawal). Look for column headers like "Credit", "Debit", "Withdrawal", "Deposit" or +/- signs.
+        2. "category": Guess a category from this list: [Food, Transport, Utilities, Housing, Entertainment, Health, Shopping, Salary, Transfers, Other]. Default to "Other" if unsure.
+
         Return JSON matching this schema:
         {
           "bank_name": string | null,
@@ -136,8 +229,9 @@ class DocumentAgentService:
             {
               "date": "YYYY-MM-DD",
               "description": string,
-              "amount": number,
-              "type": "debit" | "credit" | "other"
+              "amount": number (absolute value),
+              "type": "credit" | "debit",
+              "category": string
             }
           ]
         }
@@ -151,6 +245,11 @@ class DocumentAgentService:
          # Similar to bank statement but with credit fields
         prompt = """
         Extract structure for CREDIT CARD STATEMENT.
+        
+        Analyze each transaction to determine:
+        1. "type": "credit" (payment/refund) or "debit" (purchase).
+        2. "category": Guess a category from this list: [Food, Transport, Utilities, Housing, Entertainment, Health, Shopping, Salary, Transfers, Other]. Default to "Other" if unsure.
+
         Return JSON matching this schema:
         {
           "institution_name": string | null,
@@ -162,7 +261,9 @@ class DocumentAgentService:
              {
               "date": "YYYY-MM-DD",
               "description": string,
-              "amount": number
+              "amount": number (absolute value),
+              "type": "credit" | "debit",
+              "category": string
             }
           ]
         }
@@ -174,18 +275,23 @@ class DocumentAgentService:
     async def _extract_invoice_receipt(self, text: str, image_data: Optional[str], type_name: str) -> Dict[str, Any]:
         prompt = f"""
         Extract structure for {type_name.upper()}.
+        
+        For line items, guess the "category" from: [Food, Transport, Utilities, Housing, Entertainment, Health, Shopping, Salary, Transfers, Other].
+        
         Return JSON matching this schema:
         {{
           "vendor_name": string | null,
           "date": "YYYY-MM-DD" | null,
           "total_amount": number | null,
           "tax_amount": number | null,
+          "currency": string | null,
           "line_items": [
             {{
               "description": string,
               "quantity": number,
               "unit_price": number,
-              "total": number
+              "total": number,
+              "category": string
             }}
           ]
         }}

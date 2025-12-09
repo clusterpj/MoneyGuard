@@ -33,7 +33,9 @@ async def analyze_document_endpoint(
         )
         return result
     except Exception as e:
-        print(f"Error analyzing document: {e}")
+        import traceback
+        traceback.print_exc()
+        print(f"Error analyzing document: {e!r}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/upload", response_model=List[Any])
@@ -111,7 +113,9 @@ async def upload_statement(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        print(f"Error processing file: {e}")
+        import traceback
+        traceback.print_exc()
+        print(f"Error processing file: {e!r}")
         raise HTTPException(status_code=500, detail="Failed to process file")
 
 @router.post("/confirm", response_model=List[Any])
@@ -123,7 +127,17 @@ async def confirm_import(
     """
     Confirm and save imported transactions.
     """
+    from app.models.category import Category # Import here to avoid circular or early import
+
     saved_expenses = []
+    # Pre-fetch user categories to minimize queries
+    user_categories = db.query(Category).filter(
+        (Category.user_id == current_user.id) | (Category.is_default == True)
+    ).all()
+    
+    # Map name -> id (lowercase for fuzzy match)
+    category_map = {c.name.lower(): c.id for c in user_categories}
+
     for tx in transactions:
         try:
             # Basic validation and conversion
@@ -143,20 +157,34 @@ async def confirm_import(
                     except:
                         print(f"Failed to parse date: {date_str}, using now()")
                         date = datetime.now()
-                
-            print(f"DEBUG: Creating expense. Source: 'import'")
+            
+            # Category linking
+            category_id = None
+            category_name = tx.get("category")
+            if category_name:
+                category_id = category_map.get(category_name.lower())
+                # specific checks for "Uncategorized" or "Other" mapped to defaults if possible
+                if not category_id and category_name.lower() in ["other", "uncategorized", "general"]:
+                     category_id = category_map.get("other")
+
+            # Determine Amount Sign based on Type
+            # If explicit type is "credit" or "income", valid mapping would be negative amount (if Expense model) OR positive Income model
+            # For MoneyGuard (Expense Tracker), we assume positive = Expense. 
+            # If user explicitly says "credit", maybe we should skip or invert?
+            # Current behavior: We store everything as Expense (positive). 
+            # To support "Income", we would need an Income model or negative expenses.
+            # Assuming User manually verifies in Step 2, we respect the absolute amount for now.
             
             expense = Expense(
-                amount=abs(amount), # Store as positive expense, handle income logic if needed later
+                amount=abs(amount), 
                 description=tx.get("description", "Imported Transaction"),
                 date=date,
                 source=ExpenseSource.IMPORT,
                 ocr_raw_text=tx.get("ocr_raw_text"),
                 ocr_confidence=tx.get("ocr_confidence"),
                 user_id=current_user.id,
-                # category_id could be matched here if we had logic, for now leave null or default
+                category_id=category_id
             )
-            # print(f"DEBUG: Expense object created. Source attribute: {expense.source}")
             db.add(expense)
             saved_expenses.append(expense)
         except Exception as e:

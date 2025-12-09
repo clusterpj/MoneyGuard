@@ -51,6 +51,12 @@ class ExpenseCategory {
       emoji: '💊',
       color: Color(0xFF34D399),
     ),
+    ExpenseCategory(
+      id: 'other',
+      name: 'Other',
+      emoji: '📝',
+      color: AppColors.textSecondary,
+    ),
   ];
 
   static ExpenseCategory fromId(String id) {
