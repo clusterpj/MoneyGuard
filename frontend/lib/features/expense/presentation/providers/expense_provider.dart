@@ -6,7 +6,6 @@ import 'package:moneyguard/features/expense/data/repositories/expense_repository
 import 'package:moneyguard/features/expense/domain/entities/expense.dart';
 import 'package:moneyguard/features/expense/domain/repositories/expense_repository.dart';
 import 'package:moneyguard/features/intervention/data/datasources/intervention_remote_data_source.dart';
-import 'package:moneyguard/features/auth/presentation/providers/auth_provider.dart' show apiClientProvider;
 
 final expenseRemoteDataSourceProvider = Provider<ExpenseRemoteDataSource>((
   ref,
@@ -18,9 +17,10 @@ final expenseLocalDataSourceProvider = Provider<ExpenseLocalDataSource>((ref) {
   return ExpenseLocalDataSourceImpl();
 });
 
-final interventionRemoteDataSourceProvider = Provider<InterventionRemoteDataSource>((ref) {
-  return InterventionRemoteDataSource(ref.read(apiClientProvider));
-});
+final interventionRemoteDataSourceProvider =
+    Provider<InterventionRemoteDataSource>((ref) {
+      return InterventionRemoteDataSource(ref.read(apiClientProvider));
+    });
 
 final expenseRepositoryProvider = Provider<ExpenseRepository>((ref) {
   return ExpenseRepositoryImpl(
@@ -88,7 +88,9 @@ class ExpenseList extends AsyncNotifier<List<Expense>> {
     double? ocrConfidence,
   }) async {
     final repository = ref.read(expenseRepositoryProvider);
-    final interventionDataSource = ref.read(interventionRemoteDataSourceProvider);
+    final interventionDataSource = ref.read(
+      interventionRemoteDataSourceProvider,
+    );
     final interventionNotifier = ref.read(interventionProvider.notifier);
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -104,10 +106,8 @@ class ExpenseList extends AsyncNotifier<List<Expense>> {
       );
       // Check intervention
       try {
-        final interventionResult = await interventionDataSource.checkIntervention(
-          amount: amount,
-          category: category,
-        );
+        final interventionResult = await interventionDataSource
+            .checkIntervention(amount: amount, category: category);
         if (interventionResult['should_intervene'] == true) {
           interventionNotifier.setIntervention(interventionResult);
         }
@@ -182,6 +182,7 @@ class InterventionNotifier extends Notifier<Map<String, dynamic>?> {
   }
 }
 
-final interventionProvider = NotifierProvider<InterventionNotifier, Map<String, dynamic>?>(
-  () => InterventionNotifier(),
-);
+final interventionProvider =
+    NotifierProvider<InterventionNotifier, Map<String, dynamic>?>(
+      () => InterventionNotifier(),
+    );
