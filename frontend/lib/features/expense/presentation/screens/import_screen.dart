@@ -397,7 +397,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 // Show raw date
-                                '${tx['date']?.toString().split('T')[0] ?? 'No Date'}',
+                                tx['date']?.toString().split('T')[0] ??
+                                    'No Date',
                                 style: AppTypography.bodySmall.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
