@@ -1,0 +1,75 @@
+# EditorConfig - Consistent coding styles across editors
+# https://editorconfig.org
+
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Dart files (Flutter)
+[*.dart]
+indent_style = space
+indent_size = 2
+
+# YAML files (pubspec.yaml, GitHub Actions, etc.)
+[*.{yaml,yml}]
+indent_style = space
+indent_size = 2
+
+# Python files (Backend)
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 88
+
+# JSON files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Shell scripts
+[*.sh]
+indent_style = space
+indent_size = 2
+
+# Gradle files (Android)
+[*.gradle]
+indent_style = space
+indent_size = 4
+
+# XML files (Android)
+[*.xml]
+indent_style = space
+indent_size = 4
+
+# JavaScript/TypeScript (if needed)
+[*.{js,ts,jsx,tsx}]
+indent_style = space
+indent_size = 2
+
+# SQL files
+[*.sql]
+indent_style = space
+indent_size = 2
+
+# Configuration files
+[{.babelrc,.stylelintrc,jest.config,*.config.js}]
+indent_style = space
+indent_size = 2
+
+# Makefiles (must use tabs)
+[Makefile]
+indent_style = tab
+
+# Ignore generated files
+[{*.lock,package-lock.json,yarn.lock}]
+indent_style = ignore

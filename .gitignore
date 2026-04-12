@@ -1,0 +1,278 @@
+# MoneyGuard - Comprehensive .gitignore
+# Covers Flutter, Python, IDEs, and OS-specific files
+
+# ============================================
+# SECRETS & CREDENTIALS
+# ============================================
+.env
+.env.local
+.env.*.local
+credentials/
+*.key
+*.pem
+*.p12
+secrets.json
+firebase-adminsdk-*.json
+
+# ============================================
+# FLUTTER / DART
+# ============================================
+
+# Build artifacts
+**/build/
+**/android/app/build/
+**/ios/build/
+**/web/build/
+**/windows/build/
+**/linux/build/
+**/macos/build/
+
+# Flutter/Dart dependencies
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+pubspec.lock
+
+# Flutter generated files
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+generated_plugin_registrant.dart
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle/wrapper/gradle-wrapper.jar
+**/android/.idea/
+**/android/*.iml
+**/android/app/google-services.json
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/GoogleService-Info.plist
+
+# macOS
+**/macos/Pods/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Coverage
+coverage/
+*.lcov
+
+# ============================================
+# PYTHON / BACKEND
+# ============================================
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+backend/venv/
+backend/env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+wheels/
+pip-wheel-metadata/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3
+*.sql
+
+# Alembic
+alembic/versions/*.pyc
+
+# ============================================
+# IDEs & EDITORS
+# ============================================
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Xcode
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# OPERATING SYSTEMS
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# LOGS & TEMPORARY FILES
+# ============================================
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# ============================================
+# PROJECT-SPECIFIC
+# ============================================
+
+# OCR / Receipt images (if storing locally)
+receipts/
+uploads/
+
+# Cache directories
+.cache/
+cache/
+
+# Test data
+test_data/
+mock_data/
+
+# Documentation builds
+docs/_build/
+site/
+
+# ============================================
+# CI/CD
+# ============================================
+
+# GitHub Actions
+.github/workflows/*.log
+
+# Railway
+.railway/
+
+# ============================================
+# MISC
+# ============================================
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# Lock files (keep these for reproducibility, but can ignore if needed)
+# package-lock.json
+# yarn.lock
+
+# Backup files
+*.backup
+*.old
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md
+
+# ============================================
+# LOCAL BUILD ENVIRONMENT
+# ============================================
+android-sdk/
+jdk-17/
+jdk-17.0.2/
+jdk17.tar.gz
+build_log.txt
+frontend/test_driver/screenshots/
+
