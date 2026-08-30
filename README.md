@@ -3,7 +3,7 @@
 > **Your AI-Powered Financial Firewall**  
 > Stop overspending before it happens with intelligent intervention and OCR receipt scanning.
 
-[![Status](https://img.shields.io/badge/status-MVP-yellow)](https://github.com/clusterpj/MoneyGuard)
+[![Status](https://img.shields.io/badge/status-MVP-yellow)](https://github.com/pedrojimenezdev/MoneyGuard)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.16+-02569B?logo=flutter)](https://flutter.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
@@ -91,7 +91,7 @@ Only triggers expensive AI calls when necessary, keeping costs under $5/month.
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/clusterpj/MoneyGuard.git
+git clone https://github.com/pedrojimenezdev/MoneyGuard.git
 cd moneyguard
 ```
 
@@ -230,7 +230,7 @@ MoneyGuard is **proactive** - it intervenes in real-time with context-aware AI t
 
 **Project Lead**: Pedro Jimenez  
 **Email**: your.email@example.com  
-**Project Link**: [https://github.com/clusterpj/MoneyGuard](https://github.com/yourusername/moneyguard)
+**Project Link**: [https://github.com/pedrojimenezdev/MoneyGuard](https://github.com/yourusername/moneyguard)
 
 ---
 
@@ -248,6 +248,6 @@ MoneyGuard is **proactive** - it intervenes in real-time with context-aware AI t
 
 **Built with ❤️ for the Dominican Republic**
 
-[Report Bug](https://github.com/clusterpj/MoneyGuard/issues) · [Request Feature](https://github.com/yourusername/moneyguard/issues) · [Documentation](docs/)
+[Report Bug](https://github.com/pedrojimenezdev/MoneyGuard/issues) · [Request Feature](https://github.com/yourusername/moneyguard/issues) · [Documentation](docs/)
 
 </div>
